@@ -5,9 +5,11 @@ package main
 import (
 	"net/http"
 
+	"tagallery.com/api/config"
 	"tagallery.com/api/routes"
 )
 
 func main() {
+	config.LoadConfig()
 	http.ListenAndServe(":3333", routes.CreateRouter())
 }

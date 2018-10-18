@@ -1,29 +1,30 @@
 package routes
 
 import (
-  "net/http"
-  "github.com/go-chi/chi"
-  "github.com/go-chi/chi/middleware"
-  "github.com/go-chi/render"
+	"net/http"
+
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/render"
 )
 
 func CreateRouter() *chi.Mux {
-  r := chi.NewRouter()
+	r := chi.NewRouter()
 
-  r.Use(middleware.RequestID)
-  r.Use(middleware.Logger)
-  r.Use(middleware.Recoverer)
-  r.Use(middleware.URLFormat)
-  r.Use(render.SetContentType(render.ContentTypeJSON))
+	r.Use(middleware.RequestID)
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
+	r.Use(middleware.URLFormat)
+	r.Use(render.SetContentType(render.ContentTypeJSON))
 
-  r.Route("/categories", func(r chi.Router) {
-    r.Get("/", GetCategories)
-  })
-  r.Route("/images", func(r chi.Router) {
-    r.Get("/", GetImages)
-  })
+	r.Route("/categories", func(r chi.Router) {
+		r.Get("/", GetCategories)
+	})
+	r.Route("/images", func(r chi.Router) {
+		r.Get("/", GetImages)
+	})
 
-  return r;
+	return r
 }
 
 type ErrResponse struct {
@@ -40,22 +41,11 @@ func (e *ErrResponse) Render(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-// func ErrInvalidRequest(err error) render.Renderer {
-// 	return &ErrResponse{
-// 		Err:            err,
-// 		HTTPStatusCode: 400,
-// 		StatusText:     "Invalid request.",
-// 		ErrorText:      err.Error(),
-// 	}
-// }
-
-// func ErrRender(err error) render.Renderer {
-// 	return &ErrResponse{
-// 		Err:            err,
-// 		HTTPStatusCode: 422,
-// 		StatusText:     "Error rendering response.",
-// 		ErrorText:      err.Error(),
-// 	}
-// }
-
-// var ErrNotFound = &ErrResponse{HTTPStatusCode: 404, StatusText: "Resource not found."}
+func ErrInternalServerError(err error) render.Renderer {
+	return &ErrResponse{
+		Err:            err,
+		HTTPStatusCode: 500,
+		StatusText:     "Unexpected error during request processing.",
+		ErrorText:      err.Error(),
+	}
+}

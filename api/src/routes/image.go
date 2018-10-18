@@ -1,10 +1,10 @@
 package routes
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/go-chi/render"
+	log "github.com/sirupsen/logrus"
 	"tagallery.com/api/models"
 )
 
@@ -31,42 +31,32 @@ func ImageListResponse(images []*models.Image) []render.Renderer {
 
 func GetImages(w http.ResponseWriter, r *http.Request) {
 	var images []*models.Image
+	var err error
+	count := 20
 	status := r.URL.Query().Get("status")
 	categories := r.URL.Query()["categories"]
 	lastImage := r.URL.Query().Get("last")
 
-	fmt.Printf("Status: %#v, Categories: %#v, Last Image: %#v\n", status, categories, lastImage)
-
 	switch status {
 	case "unprocessed":
-		images = getUnprocessedImages(lastImage)
+		images, err = models.GetUnprocessedImages(count, lastImage)
 	case "uncategorized":
-		images = getUnCategorizedImages(lastImage)
+		images = models.GetUnCategorizedImages(count, lastImage)
 	case "autocategorized":
-		images = getAutoCategorizedImages(categories, lastImage)
+		images = models.GetAutoCategorizedImages(count, categories, lastImage)
 	default:
-		images = getCategorizedImages(categories, lastImage)
+		images = models.GetCategorizedImages(count, categories, lastImage)
 	}
 
-	render.RenderList(w, r, ImageListResponse(images))
-}
-
-// Get images from a directory that have not been seen/categorized yet
-func getUnprocessedImages(lastImage string) []*models.Image {
-	return models.ImageFixtures
-}
-
-// Check in the DB for images that were unable to be categorized automatically
-func getUnCategorizedImages(lastImage string) []*models.Image {
-	return models.ImageFixtures
-}
-
-// Get images from the DB that have been automatically categorized by the NL
-func getAutoCategorizedImages(categories []string, lastImage string) []*models.Image {
-	return models.ImageFixtures
-}
-
-// Get images from the DB that have been categorized
-func getCategorizedImages(categories []string, lastImage string) []*models.Image {
-	return models.ImageFixtures
+	if err != nil {
+		log.WithFields(log.Fields{
+			"status":     status,
+			"lastImage":  lastImage,
+			"categories": categories,
+			"error":      err,
+		}).Error("An error during the select of images occured")
+		render.Render(w, r, ErrInternalServerError(err))
+	} else {
+		render.RenderList(w, r, ImageListResponse(images))
+	}
 }
