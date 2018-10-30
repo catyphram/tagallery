@@ -1,2 +1,5 @@
-api/src/src/
-api/src/config.json
+api/config.json
+api/api
+api/api.exe
+mongodb/*
+!mongodb/.gitkeep

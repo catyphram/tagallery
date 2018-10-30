@@ -1,9 +1,9 @@
-FROM golang:1.11
+# FROM golang:1.11
 
-WORKDIR /go/src/app
-COPY ./app .
+# WORKDIR /go/src/app
+# COPY ./app .
 
-RUN go get -d -v ./...
-RUN go install -v ./...
+# RUN go get -d -v ./...
+# RUN go install -v ./...
 
-CMD ["app"]
+# CMD ["app"]
