@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`api.ts loadCategories should load and return the categories 1`] = `
+Array [
+  Object {
+    "description": "Category 1",
+    "key": "cat1",
+    "name": "Category 1",
+  },
+  Object {
+    "description": "Category 2",
+    "key": "cat2",
+    "name": "Category 2",
+  },
+]
+`;

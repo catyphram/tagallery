@@ -3,3 +3,4 @@ api/api
 api/api.exe
 mongodb/*
 !mongodb/.gitkeep
+client/coverage/

@@ -15,6 +15,8 @@ Dockerfiles and a docker-compose config file will soon be added to allow for an 
 
 ### API
 
+The REST-API is written in golang using mongodb.
+
 #### Configuration
 
 Run `docker-compose up -d` to start the mongo database.  
@@ -35,4 +37,6 @@ Run `UNPROCESSED_IMAGES=/path/to/empty/dir PORT=3333 DATABASE=tagallery DATABASE
 
 ### Client
 
-The client will be written using Vue.js with TypeScript, SCSS, Jest and Cypress. Seek the [Vue Cli ducumentation](https://cli.vuejs.org/) for information on how to serve, build and test the application.
+The client is written using Vue.js with TypeScript, SCSS, Jest and Cypress. Vuex is used for state management and Vue Material (Material Design) for the layout and styling.
+
+Seek the [Vue Cli ducumentation](https://cli.vuejs.org/guide/cli-service.html#using-the-binary) for more information on how to serve, build and test the application via the command line or the Vue Cli UI.

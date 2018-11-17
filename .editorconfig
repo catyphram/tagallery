@@ -1,0 +1,8 @@
+[*]
+indent_style = tab
+
+[*.{ts,js,vue}]
+indent_size = 2
+
+[*.go]
+indent_size = 4
