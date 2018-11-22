@@ -16,10 +16,10 @@ type DBImage struct {
 
 // GetImages queries the database for images.
 // If count > 0 no more then {count} images will be returned.
-// A CategoryMap may be passed to filter only images that are in all of these categories.
+// A *CategoryMap may be passed to filter only images that are in all of these categories.
 // If categories == nil then instead of (auto)-categorized images,
 // only images that have no assigned category will be returned.
-// With lastImage you get only images after this only. Used for pagination.
+// With lastImage you get only images after this one. Used for pagination.
 func GetImages(count int, categories *model.CategoryMap, lastImage string) ([]model.Image, error) {
 	var dbLastImage DBImage
 	doc := bson.NewDocument()

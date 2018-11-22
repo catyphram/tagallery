@@ -34,6 +34,9 @@
 .md-app {
   height: 100vh;
 }
+.md-content {
+  overflow: auto;
+}
 .app-name {
   padding-left: 16px;
 }
@@ -67,13 +70,15 @@ export default class App extends Vue {
 
     return `${modeLabel} ${uncategorizedLabel}` + (categoryLabel ? ' ' + categoryLabel : '');
   }
-  public menuVisible = false;
+  public menuVisible = true;
   constructor() {
     super();
-    this.$store.dispatch('loadCategories');
   }
   public toggleMenu() {
     this.menuVisible = !this.menuVisible;
+  }
+  public beforeMount() {
+    this.$store.dispatch('loadCategories');
   }
 }
 </script>

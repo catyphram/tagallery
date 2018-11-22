@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`store.ts actions loadCategories should load and set the categories 1`] = `
+exports[`store.ts actions loadCategories should load the categories 1`] = `
 [MockFunction] {
   "calls": Array [
     Array [
@@ -50,6 +50,192 @@ exports[`store.ts actions loadCategories should load and set the categories 1`] 
     ],
   ],
   "results": Array [
+    Object {
+      "isThrow": false,
+      "value": undefined,
+    },
+    Object {
+      "isThrow": false,
+      "value": undefined,
+    },
+  ],
+}
+`;
+
+exports[`store.ts actions loadImages should load a batch of images 1`] = `
+[MockFunction] {
+  "calls": Array [
+    Array [
+      "updateImages",
+      Object {
+        "append": true,
+        "images": Array [],
+        "loading": true,
+      },
+    ],
+    Array [
+      "updateImages",
+      Object {
+        "append": true,
+        "completed": false,
+        "images": Array [
+          Object {
+            "file": "image0.jpg",
+          },
+          Object {
+            "file": "image1.jpg",
+          },
+          Object {
+            "file": "image2.jpg",
+          },
+          Object {
+            "file": "image3.jpg",
+          },
+          Object {
+            "file": "image4.jpg",
+          },
+          Object {
+            "file": "image5.jpg",
+          },
+          Object {
+            "file": "image6.jpg",
+          },
+          Object {
+            "file": "image7.jpg",
+          },
+          Object {
+            "file": "image8.jpg",
+          },
+          Object {
+            "file": "image9.jpg",
+          },
+        ],
+        "loading": false,
+      },
+    ],
+  ],
+  "results": Array [
+    Object {
+      "isThrow": false,
+      "value": undefined,
+    },
+    Object {
+      "isThrow": false,
+      "value": undefined,
+    },
+  ],
+}
+`;
+
+exports[`store.ts actions loadImages should load a batch of images 2`] = `
+[MockFunction] {
+  "calls": Array [
+    Array [
+      "updateImages",
+      Object {
+        "append": true,
+        "images": Array [],
+        "loading": true,
+      },
+    ],
+    Array [
+      "updateImages",
+      Object {
+        "append": true,
+        "completed": false,
+        "images": Array [
+          Object {
+            "file": "image0.jpg",
+          },
+          Object {
+            "file": "image1.jpg",
+          },
+          Object {
+            "file": "image2.jpg",
+          },
+          Object {
+            "file": "image3.jpg",
+          },
+          Object {
+            "file": "image4.jpg",
+          },
+          Object {
+            "file": "image5.jpg",
+          },
+          Object {
+            "file": "image6.jpg",
+          },
+          Object {
+            "file": "image7.jpg",
+          },
+          Object {
+            "file": "image8.jpg",
+          },
+          Object {
+            "file": "image9.jpg",
+          },
+        ],
+        "loading": false,
+      },
+    ],
+    Array [
+      "updateImages",
+      Object {
+        "append": false,
+        "images": Array [],
+        "loading": true,
+      },
+    ],
+    Array [
+      "updateImages",
+      Object {
+        "append": false,
+        "completed": false,
+        "images": Array [
+          Object {
+            "file": "image0.jpg",
+          },
+          Object {
+            "file": "image1.jpg",
+          },
+          Object {
+            "file": "image2.jpg",
+          },
+          Object {
+            "file": "image3.jpg",
+          },
+          Object {
+            "file": "image4.jpg",
+          },
+          Object {
+            "file": "image5.jpg",
+          },
+          Object {
+            "file": "image6.jpg",
+          },
+          Object {
+            "file": "image7.jpg",
+          },
+          Object {
+            "file": "image8.jpg",
+          },
+          Object {
+            "file": "image9.jpg",
+          },
+        ],
+        "loading": false,
+      },
+    ],
+  ],
+  "results": Array [
+    Object {
+      "isThrow": false,
+      "value": undefined,
+    },
+    Object {
+      "isThrow": false,
+      "value": undefined,
+    },
     Object {
       "isThrow": false,
       "value": undefined,

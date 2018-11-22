@@ -1,8 +1,11 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { config, shallowMount, createLocalVue } from '@vue/test-utils';
 import Vuex from 'vuex';
 import App from '@/App.vue';
 import { LIST_MODE, Category } from '@/models';
 import { MdApp, MdButton, MdIcon, MdToolbar } from 'vue-material/dist/components';
+
+// https://github.com/vuejs/vue-test-utils/issues/973
+config.logModifiedComponents = false;
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
@@ -25,10 +28,10 @@ const store = new Vuex.Store({
 });
 
 describe('App.vue', () => {
-  it('menuVisible should be false by default', () => {
+  it('menuVisible should be visible by default', () => {
     const wrapper = shallowMount(App, { store, localVue });
     const view = wrapper.vm as any;
-    expect(view.menuVisible).toEqual(false);
+    expect(view.menuVisible).toEqual(true);
   });
 
   it('toggleMenu should toggle #menuVisible', () => {

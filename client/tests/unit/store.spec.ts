@@ -1,5 +1,5 @@
 import { getters, mutations, actions } from '@/store';
-import { Category, LIST_MODE } from '@/models';
+import { Category, LIST_MODE, Image } from '@/models';
 
 jest.mock('@/api/api');
 
@@ -21,16 +21,52 @@ describe('store.ts', () => {
       const state = {
         categories: {
           data: [] as Category[],
-          loading: false,
+          loading: true,
         },
       };
       mutations.updateCategories(state, {
         categories,
-        loading: false,
       });
 
       expect(state.categories.data).toBe(categories);
       expect(state.categories.loading).toBe(false);
+    });
+
+    it('updateImages should set the images, completed and loading status in the state', () => {
+      const images = [{ file: 'test1.jpg' }, { file: 'test2.jpg' } ] as Image[];
+      const state = {
+        images: {
+          data: [] as Image[],
+          loading: true,
+          completed: false,
+        },
+      };
+      mutations.updateImages(state, {
+        images,
+        loading: false,
+        completed: true,
+      });
+
+      expect(state.images.data).toBe(images);
+      expect(state.images.loading).toBe(false);
+      expect(state.images.completed).toBe(true);
+    });
+
+    it('updateImages should append the images if #append is true', () => {
+      const images = [{ file: 'test1.jpg' }, { file: 'test2.jpg' } ] as Image[];
+      const newImages = [{ file: 'test3.jpg' }, { file: 'test4.jpg' } ] as Image[];
+      const state = {
+        images: {
+          data: [...images],
+          loading: true,
+        },
+      };
+      mutations.updateImages(state, {
+        images: newImages,
+        append: true,
+      });
+
+      expect(state.images.data).toEqual(images.concat(newImages));
     });
 
     it('setMode should set the mode in the state', () => {
@@ -94,11 +130,19 @@ describe('store.ts', () => {
     beforeEach(() => {
       context = {
         commit: jest.fn(),
+        dispatch: jest.fn(),
       };
     });
 
-    it('loadCategories should load and set the categories', async () => {
+    it('loadCategories should load the categories', async () => {
       await actions.loadCategories(context);
+      expect(context.commit).toMatchSnapshot();
+    });
+
+    it('loadImages should load a batch of images', async () => {
+      await actions.loadImages(context, true);
+      expect(context.commit).toMatchSnapshot();
+      await actions.loadImages(context);
       expect(context.commit).toMatchSnapshot();
     });
 

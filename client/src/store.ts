@@ -1,8 +1,8 @@
 import Vue from 'vue';
-import Vuex, { Store } from 'vuex';
+import Vuex from 'vuex';
 
 import * as api from '@/api/api';
-import { Category, LIST_MODE } from './models';
+import { Category, Image, LIST_MODE } from './models';
 
 Vue.use(Vuex);
 
@@ -10,6 +10,11 @@ export const state = {
   categories: {
     loading: false,
     data: [] as Category[],
+  },
+  images: {
+    loading: false,
+    completed: false,
+    data: [] as Image[],
   },
   listMode: LIST_MODE.MODE_VIEW,
   selectedCategories: [] as Category[],
@@ -21,9 +26,20 @@ export const getters = {
 };
 
 export const mutations = {
-  updateCategories(state, { categories, loading }) {
+  updateCategories(state, { categories, loading = false }: { categories?: Category[], loading?: boolean }) {
     state.categories.data = categories;
     state.categories.loading = loading;
+  },
+  updateImages(state, {
+    images, loading = false, completed = false, append = false,
+  }: { images: Image[], loading?: boolean, completed?: boolean, append?: boolean }) {
+    if (append) {
+      state.images.data.push(...images);
+    } else {
+      state.images.data = images;
+    }
+    state.images.loading = loading;
+    state.images.completed = completed;
   },
   setMode(state, { mode }: {mode: LIST_MODE}) {
     state.listMode = mode;
@@ -60,19 +76,38 @@ export const actions = {
       categories: await api.loadCategories(),
       loading: false,
     });
+    context.dispatch('loadImages');
+  },
+  async loadImages(context, append = false) {
+    context.commit('updateImages', {
+      images: [],
+      loading: true,
+      append,
+    });
+
+    const images = await api.loadImages();
+    context.commit('updateImages', {
+      images,
+      loading: false,
+      completed: !images.length,
+      append,
+    });
   },
   setMode(context, mode: LIST_MODE) {
-    return context.commit('setMode', { mode });
+    context.commit('setMode', { mode });
+    context.dispatch('loadImages');
   },
   toggleCategory(context, category: Category) {
     if (context.state.selectedCategories.includes(category)) {
-      return context.commit('unselectCategory', { category });
+      context.commit('unselectCategory', { category });
     } else {
-      return context.commit('selectCategory', { category });
+      context.commit('selectCategory', { category });
     }
+    context.dispatch('loadImages');
   },
   toggleListUncategorized(context) {
-    return context.commit('setListUncategorized', { flag: !context.state.listUncategorized });
+    context.commit('setListUncategorized', { flag: !context.state.listUncategorized });
+    context.dispatch('loadImages');
   },
 };
 

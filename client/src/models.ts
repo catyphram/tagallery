@@ -6,5 +6,12 @@ export enum LIST_MODE {
 export interface Category {
     name: string;
     key: string;
-    description: string;
+    description?: string;
+}
+
+export interface Image {
+  file: string;
+  assignedCategories?: string[];
+  proposedCategories?: string[];
+  starredCategory?: string;
 }

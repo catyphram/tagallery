@@ -14,3 +14,98 @@ Array [
   },
 ]
 `;
+
+exports[`api.ts loadImages should load and return a batch of images 1`] = `
+Array [
+  Object {
+    "file": "https://picsum.photos/400/400/?random&key=0-0",
+  },
+  Object {
+    "file": "https://picsum.photos/400/400/?random&key=0-1",
+  },
+  Object {
+    "file": "https://picsum.photos/400/400/?random&key=0-2",
+  },
+  Object {
+    "file": "https://picsum.photos/400/400/?random&key=0-3",
+  },
+  Object {
+    "file": "https://picsum.photos/400/400/?random&key=0-4",
+  },
+  Object {
+    "file": "https://picsum.photos/400/400/?random&key=0-5",
+  },
+  Object {
+    "file": "https://picsum.photos/400/400/?random&key=0-6",
+  },
+  Object {
+    "file": "https://picsum.photos/400/400/?random&key=0-7",
+  },
+  Object {
+    "file": "https://picsum.photos/400/400/?random&key=0-8",
+  },
+  Object {
+    "file": "https://picsum.photos/400/400/?random&key=0-9",
+  },
+  Object {
+    "file": "https://picsum.photos/400/400/?random&key=0-10",
+  },
+  Object {
+    "file": "https://picsum.photos/400/400/?random&key=0-11",
+  },
+  Object {
+    "file": "https://picsum.photos/400/400/?random&key=0-12",
+  },
+  Object {
+    "file": "https://picsum.photos/400/400/?random&key=0-13",
+  },
+  Object {
+    "file": "https://picsum.photos/400/400/?random&key=0-14",
+  },
+  Object {
+    "file": "https://picsum.photos/400/400/?random&key=0-15",
+  },
+  Object {
+    "file": "https://picsum.photos/400/400/?random&key=0-16",
+  },
+  Object {
+    "file": "https://picsum.photos/400/400/?random&key=0-17",
+  },
+  Object {
+    "file": "https://picsum.photos/400/400/?random&key=0-18",
+  },
+  Object {
+    "file": "https://picsum.photos/400/400/?random&key=0-19",
+  },
+  Object {
+    "file": "https://picsum.photos/400/400/?random&key=0-20",
+  },
+  Object {
+    "file": "https://picsum.photos/400/400/?random&key=0-21",
+  },
+  Object {
+    "file": "https://picsum.photos/400/400/?random&key=0-22",
+  },
+  Object {
+    "file": "https://picsum.photos/400/400/?random&key=0-23",
+  },
+  Object {
+    "file": "https://picsum.photos/400/400/?random&key=0-24",
+  },
+  Object {
+    "file": "https://picsum.photos/400/400/?random&key=0-25",
+  },
+  Object {
+    "file": "https://picsum.photos/400/400/?random&key=0-26",
+  },
+  Object {
+    "file": "https://picsum.photos/400/400/?random&key=0-27",
+  },
+  Object {
+    "file": "https://picsum.photos/400/400/?random&key=0-28",
+  },
+  Object {
+    "file": "https://picsum.photos/400/400/?random&key=0-29",
+  },
+]
+`;
