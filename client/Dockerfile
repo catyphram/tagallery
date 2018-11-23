@@ -1,9 +1,11 @@
-FROM ubuntu
+FROM nginx:alpine
 
-RUN apt-get update
-RUN apt-get install -y python3
+# Install node and yarn
+RUN apk add --update make gnupg curl nodejs-current yarn
 
-# EXPOSE  8080
+# Copy and build source files
+COPY . /tmp/client
+WORKDIR /tmp/client/
+RUN yarn install && yarn build
 
-WORKDIR /var/www/
-CMD ["python3", "-m", "http.server", "8080"]
+RUN cp -r dist/. /usr/share/nginx/html/

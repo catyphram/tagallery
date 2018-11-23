@@ -1,9 +1,22 @@
-# FROM golang:1.11
+FROM golang:1.11-alpine
 
-# WORKDIR /go/src/app
-# COPY ./app .
+RUN  apk add --update musl-dev gcc git
 
-# RUN go get -d -v ./...
-# RUN go install -v ./...
+ENV UNPROCESSED_IMAGES=/tagallery/images/unprocessed
+ENV GO111MODULE=on
 
-# CMD ["app"]
+# Override these env variables according to your settings
+ENV PORT=3333
+ENV DATABASE=tagallery
+ENV DATABASE_HOST=tg-mongodb
+
+# Create the image directory if it doesn't exist already
+RUN mkdir -p ${UNPROCESSED_IMAGES}
+
+WORKDIR /go/src/app
+COPY . .
+
+RUN go get -d ./...
+RUN go build
+
+CMD ["./api"]
