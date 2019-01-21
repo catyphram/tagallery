@@ -77,9 +77,9 @@ func startAPI() error {
 }
 
 // createFileFixtures creates and fills a directory with some example content.
-func createFileFixtures() error {
+func createFileFixtures(directory string) error {
 
-	return testutil.FillDirectory(config.GetConfig().Unprocessed_Images, testutil.FileTree{
+	return testutil.FillDirectory(directory, testutil.FileTree{
 		Dirs: map[string]*testutil.FileTree{
 			"nested": &testutil.FileTree{
 				Files: []string{"ignore.jpg"},
@@ -120,17 +120,22 @@ func dropDb(t *testing.T) {
 }
 
 func init() {
+	config.Load()
+
 	// Manually set the config here for debugging without a config file or env vars
 	// config.SetConfig(config.Configuration{
 	// 	Database:           "tagallery",
 	// 	Database_Host:      "localhost:27017",
-	// 	Unprocessed_Images: "/home/catyphram/Projects/Tagallery/code/api/src/test/images/",
+	//  Unprocessed_Images: "testdata",
 	// 	Port:               3333,
 	// })
-	config.Load()
+
 }
 
 func TestAPI(t *testing.T) {
+
+	var directory = config.GetConfig().Unprocessed_Images
+
 	if err := createDBFixtures(); err != nil {
 		format, args := testutil.FormatTestError(
 			"An error while creating the database fixtures has occured.",
@@ -141,7 +146,8 @@ func TestAPI(t *testing.T) {
 		return
 	}
 	defer dropDb(t)
-	if err := createFileFixtures(); err != nil {
+
+	if err := createFileFixtures(directory); err != nil {
 		format, args := testutil.FormatTestError(
 			"An error while creating the file fixtures has occured.",
 			map[string]interface{}{
@@ -150,7 +156,8 @@ func TestAPI(t *testing.T) {
 		t.Errorf(format, args...)
 		return
 	}
-	defer util.EmptyDirectory(config.GetConfig().Unprocessed_Images)
+	defer util.EmptyDirectory(directory)
+
 	if err := startAPI(); err != nil {
 		format, args := testutil.FormatTestError(
 			"An error while starting the API has occured.",

@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"testing"
 
 	"github.com/mongodb/mongo-go-driver/mongo"
 )
@@ -112,6 +113,19 @@ func CleanMongoDb(host string, database string) error {
 		}
 	}
 	return nil
+}
+
+// DropMongoDb calls CleanMongoDb and prints a formatted error message
+func DropMongoDb(host string, database string, t *testing.T) {
+	err := CleanMongoDb(host, database)
+	if err != nil {
+		format, args := FormatTestError(
+			"Failed to clean up the database after testing.",
+			map[string]interface{}{
+				"error": err,
+			})
+		t.Errorf(format, args...)
+	}
 }
 
 // InsertIntoMongoDb connects to the mongodb and inserts the passed content.

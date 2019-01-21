@@ -22,3 +22,5 @@ services:
     volumes:
       - ./mongodb:/data/db
     command: mongod
+    ports:
+      - "27017:27017"
