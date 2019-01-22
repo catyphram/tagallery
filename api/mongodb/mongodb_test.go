@@ -8,12 +8,13 @@ import (
 )
 
 func init() {
+	config.Load()
+
 	// Manually set the config here for debugging without a config file or env vars
 	// config.SetConfig(config.Configuration{
 	// 	Database:      "tagallery",
 	// 	Database_Host: "localhost:27017",
 	// })
-	config.Load()
 }
 
 func TestInitAndClose(t *testing.T) {

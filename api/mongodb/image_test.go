@@ -18,22 +18,6 @@ var imageFixtures = []model.Image{
 	{File: "test6.jpg", ProposedCategories: []string{"Category 1"}, StarredCategory: "Category 2"},
 }
 
-// dropDb connects to and drops the database as specified in the config.
-func dropDb(t *testing.T) {
-	err := testutil.CleanMongoDb(
-		config.GetConfig().Database_Host,
-		config.GetConfig().Database,
-	)
-	if err != nil {
-		format, args := testutil.FormatTestError(
-			"Failed to clean up the database after testing.",
-			map[string]interface{}{
-				"error": err,
-			})
-		t.Errorf(format, args...)
-	}
-}
-
 // createImageFixtures creates a set of image entries in the database for testing.
 func createImageFixtures(host string, database string) error {
 	images := make([]interface{}, len(imageFixtures))
@@ -45,12 +29,13 @@ func createImageFixtures(host string, database string) error {
 }
 
 func init() {
+	config.Load()
+
 	// Manually set the config here for debugging without a config file or env vars
 	// config.SetConfig(config.Configuration{
 	// 	Database:      "tagallery",
 	// 	Database_Host: "localhost:27017",
 	// })
-	config.Load()
 }
 
 func TestGetImages(t *testing.T) {
@@ -70,7 +55,11 @@ func TestGetImages(t *testing.T) {
 		return
 	}
 
-	defer dropDb(t)
+	defer testutil.DropMongoDb(
+		config.GetConfig().Database_Host,
+		config.GetConfig().Database,
+		t,
+	)
 
 	Init(DatabaseOptions{
 		Host:     config.GetConfig().Database_Host,
@@ -79,6 +68,7 @@ func TestGetImages(t *testing.T) {
 
 	expectedImages = imageFixtures
 	dbImages, _ = GetImages(10, &model.CategoryMap{}, "")
+
 	if !reflect.DeepEqual(dbImages, expectedImages) {
 		format, args := testutil.FormatTestError(
 			"Expected images from database to equal the fixture.", map[string]interface{}{
@@ -176,7 +166,11 @@ func TestGetImages(t *testing.T) {
 }
 
 func TestUpsertImage(t *testing.T) {
-	defer dropDb(t)
+	defer testutil.DropMongoDb(
+		config.GetConfig().Database_Host,
+		config.GetConfig().Database,
+		t,
+	)
 
 	Init(DatabaseOptions{
 		Host:     config.GetConfig().Database_Host,

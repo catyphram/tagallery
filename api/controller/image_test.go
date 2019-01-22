@@ -48,6 +48,7 @@ func TestGetUnprocessedImages(t *testing.T) {
 	})
 
 	createTestDirectory(dir)
+	defer os.RemoveAll(dir)
 
 	expected = []model.Image{
 		{File: fileFixtures[0]},
@@ -100,6 +101,4 @@ func TestGetUnprocessedImages(t *testing.T) {
 			})
 		t.Errorf(format, args...)
 	}
-
-	os.RemoveAll(dir)
 }

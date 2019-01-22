@@ -10,6 +10,7 @@ import (
 	"github.com/mongodb/mongo-go-driver/mongo"
 )
 
+// DatabaseOptions structs a database name and host string
 type DatabaseOptions struct {
 	Database string
 	Host     string
@@ -20,11 +21,13 @@ var (
 	_ctx context.Context
 )
 
+type ctxKey string
+
 // Init establishes a new connection to a database.
 func Init(options DatabaseOptions) (*mongo.Database, context.Context, error) {
 	ctx := context.Background()
-	ctx = context.WithValue(ctx, "database", options.Database)
-	ctx = context.WithValue(ctx, "host", options.Host)
+	ctx = context.WithValue(ctx, ctxKey("database"), options.Database)
+	ctx = context.WithValue(ctx, ctxKey("host"), options.Host)
 
 	db, err := configDB(ctx)
 
@@ -63,7 +66,7 @@ func GetConnection() (*mongo.Database, context.Context, error) {
 // configDB opens the db connection and selects the database.
 func configDB(ctx context.Context) (*mongo.Database, error) {
 	uri := fmt.Sprintf(`mongodb://%s`,
-		ctx.Value("host"),
+		ctx.Value(ctxKey("host")),
 	)
 	client, err := mongo.NewClient(uri)
 	if err != nil {
@@ -73,6 +76,6 @@ func configDB(ctx context.Context) (*mongo.Database, error) {
 	if err != nil {
 		return nil, err
 	}
-	db := client.Database(ctx.Value("database").(string))
+	db := client.Database(ctx.Value(ctxKey("database")).(string))
 	return db, nil
 }

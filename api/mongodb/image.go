@@ -9,6 +9,7 @@ import (
 	"tagallery.com/api/model"
 )
 
+// DBImage encapsulates a model.Image and it's id in the db
 type DBImage struct {
 	model.Image
 	Id objectid.ObjectID `json:"id" bson:"_id"`
