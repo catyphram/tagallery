@@ -1,6 +1,7 @@
 package test
 
 import (
+	"time"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -72,7 +73,13 @@ func startAPI() error {
 	if err != nil {
 		return err
 	}
+
 	go http.ListenAndServe(fmt.Sprintf(":%v", config.GetConfig().Port), router.CreateRouter())
+
+    // Wait 100 milliseconds to ensure that the http server has started
+    // before the integration tests are run. A race condition may otherwise occur.
+    time.Sleep(100 * time.Millisecond)
+
 	return nil
 }
 

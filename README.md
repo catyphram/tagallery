@@ -1,5 +1,7 @@
 ## Tagallery
 
+[![Build Status](https://travis-ci.org/catyphram/tagallery.svg?branch=master)](https://travis-ci.org/catyphram/tagallery)
+
 Tagallery is an automated image tagging gallery where one can categorize images. To speed up this handy work, a neural network will try to figure out the categories of an image by comparing it with already categorized ones and proposes these cateogries for validation.
 
 **This project is Work In Progress.**
@@ -29,7 +31,7 @@ The config params can also be set via environment variables.
 Go into the `api/` folder and run `go get -d ./...` to download the dependencies, followed by `go build` to compile the executable.  
 This project is using [Go Modules](https://github.com/golang/go/wiki/Modules), which were introduced with Go v1.11. So, make sure that the project code is outside your `$GOPATH/src`, or set the environment variable `GO111MODULE=on` when running `go get|build|...`.
 
-#### Running
+#### Execution
 
 Once built the executable can be started with `./api -c=/path/to/config.json`, or, if using env variables, `UNPROCESSED_IMAGES=/path/to/image/dir PORT=3333 DATABASE=tagallery DATABASE_HOST=localhost:27017 ./api`.
 

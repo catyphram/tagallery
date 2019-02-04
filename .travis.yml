@@ -1,0 +1,23 @@
+dist: xenial
+matrix:
+  include:
+    - language: go
+      go: "1.11"
+      before_install:
+        - cd api
+      install:
+        - go get -d -v ./...
+      before_script:
+        - mkdir -p ${UNPROCESSED_IMAGES}
+      script:
+        - go tool vet .
+        - go test ./...
+      env: GO111MODULE=on
+      services: mongodb
+    - language: node_js
+      node_js: "node"
+      before_install:
+        - cd client
+      script:
+        - yarn lint && yarn test && yarn build
+      cache: yarn
