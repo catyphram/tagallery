@@ -1,6 +1,7 @@
 ## Tagallery
 
 [![Build Status](https://travis-ci.org/catyphram/tagallery.svg?branch=master)](https://travis-ci.org/catyphram/tagallery)
+[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 
 Tagallery is an automated image tagging gallery where one can categorize images. To speed up this handy work, a neural network will try to figure out the categories of an image by comparing it with already categorized ones and proposes these cateogries for validation.
 
@@ -37,7 +38,7 @@ Once built the executable can be started with `./api -c=/path/to/config.json`, o
 
 #### Testing
 
-Run `UNPROCESSED_IMAGES=/path/to/image/dir PORT=3333 DATABASE=tagallery DATABASE_HOST=localhost:27017 go test ./...` to test all the packages.
+Run `go tool vet .` to lint the code and `UNPROCESSED_IMAGES=/path/to/image/dir PORT=3333 DATABASE=tagallery DATABASE_HOST=localhost:27017 go test ./...` to test all the packages.
   
 When testing multiple packages at once the config options HAVE to be set via environment variables.  
 A config file in the same directory won't work since `go test` changes the working directory for each test to the directory of the to-be-tested package, and specifying a path via `--config /path/to/config.json` will cause [problems](https://stackoverflow.com/a/49927684) due to the flag not being supported by all packages.
@@ -49,3 +50,13 @@ The client is written using [Vue.js](https://vuejs.org/) with [TypeScript](https
 Seek the [Vue Cli ducumentation](https://cli.vuejs.org/guide/cli-service.html) for more information on how to serve, build and test the application via the command line or the Vue Cli UI.
 
 As a quick reference: Start the Vue UI with `vue ui`, or use the scripts `yarn run serve|build|lint|test:e2e|test:unit`.
+
+### Contribution
+
+Refer to the [API](#testing) and [Client](#client) section for testing and linting instructions.
+
+Commit messages follow the [Conventional Commits specification](https://www.conventionalcommits.org/) and are enforeced by [Commitlint](https://conventional-changelog.github.io/commitlint/#/) using the [conventional config](https://github.com/conventional-changelog/commitlint/tree/master/%40commitlint/config-conventional#type-enum).  
+Keywords may be added to [close a ticket](https://help.github.com/articles/closing-issues-using-keywords/) or otherwise state the progress, e. g. `progresses #1`.  
+The repository supports [Commitizen](http://commitizen.github.io/cz-cli/), so you may use `yarn run cm` as an alternativ to `git commit` if you commit on the command line. Use `\n` to separate a multi-line body message.
+
+We are following a [feature branching model](https://guides.github.com/introduction/flow/). Changes to the `master` branch have to be made through PRs and need to pass the [CI pipeline](https://travis-ci.org/), which runs linters and tests, before it can be merged via Github. The PR is automatically squashed before the merge.
