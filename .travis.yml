@@ -1,6 +1,10 @@
 dist: xenial
 matrix:
   include:
+    - language: node_js
+      node_js: "node"
+      script:
+        - commitlint-travis
     - language: go
       go: "1.11"
       before_install:
