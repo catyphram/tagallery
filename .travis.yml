@@ -15,13 +15,20 @@ matrix:
         - mkdir -p ${UNPROCESSED_IMAGES}
       script:
         - go tool vet .
-        - go test ./...
+        - go test -coverprofile=coverage.txt -covermode=atomic ./...
+      after_success:
+        - bash <(curl -s https://codecov.io/bash)
       env: GO111MODULE=on
       services: mongodb
     - language: node_js
       node_js: "node"
       before_install:
         - cd client
+      install:
+        - yarn global add codecov
+        - yarn
       script:
-        - yarn lint && yarn test && yarn build
+        - yarn lint && yarn test --collectCoverage --coverageDirectory="./coverage/" && yarn build
+      after_success:
+        - codecov
       cache: yarn
