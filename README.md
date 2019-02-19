@@ -1,7 +1,9 @@
 ## Tagallery
 
 [![Build Status](https://travis-ci.org/catyphram/tagallery.svg?branch=master)](https://travis-ci.org/catyphram/tagallery)
+[![codecov](https://codecov.io/gh/catyphram/tagallery/branch/master/graph/badge.svg)](https://codecov.io/gh/catyphram/tagallery)
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+
 
 Tagallery is an automated image tagging gallery where one can categorize images. To speed up this handy work, a neural network will try to figure out the categories of an image by comparing it with already categorized ones and proposes these cateogries for validation.
 
