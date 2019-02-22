@@ -4,6 +4,8 @@ import (
 	"net/http"
 
 	"github.com/go-chi/render"
+	log "github.com/sirupsen/logrus"
+	"tagallery.com/api/controller"
 	"tagallery.com/api/model"
 )
 
@@ -29,5 +31,14 @@ func CategoryListResponse(categories []model.Category) []render.Renderer {
 
 // GetCategories returns the list of categories images can be assigned to.
 func GetCategories(w http.ResponseWriter, r *http.Request) {
-	render.RenderList(w, r, CategoryListResponse(model.Categories))
+	categories, err := controller.GetCategories()
+
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("An error during the select of categories occured")
+		render.Render(w, r, ErrInternalServerError(err))
+	} else {
+		render.RenderList(w, r, CategoryListResponse(categories))
+	}
 }

@@ -1,13 +1,13 @@
 package test
 
 import (
-	"time"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"reflect"
 	"testing"
+	"time"
 
 	"tagallery.com/api/config"
 	"tagallery.com/api/model"
@@ -38,6 +38,15 @@ var imageFixtures = []model.Image{
 	{File: "GB3kVzAvfq", AssignedCategories: []string{"Category 2"}, ProposedCategories: []string{"Category 1", "Category 2"}},
 	{File: "cUanJL8LAs.jpg", StarredCategory: "Category 2"},
 	{File: "4jZUXo1cuG.jpg"},
+}
+
+var categoryFixtures = []model.Category{
+	{Name: "Category 1", Key: "category1", Description: "Category 1 description."},
+	{Name: "Category 2", Key: "category2", Description: "Category 2 description."},
+	{Name: "Category 3", Key: "category3", Description: "Category 3 description."},
+	{Name: "Category 4", Key: "category4", Description: "Category 4 description."},
+	{Name: "Category 5", Key: "category5", Description: "Category 5 description."},
+	{Name: "Category 6", Key: "category6", Description: "Category 6 description."},
 }
 
 // fileFixtures has to be sorted alphabetically to match the order of the returned images of the API.
@@ -76,9 +85,9 @@ func startAPI() error {
 
 	go http.ListenAndServe(fmt.Sprintf(":%v", config.GetConfig().Port), router.CreateRouter())
 
-    // Wait 100 milliseconds to ensure that the http server has started
-    // before the integration tests are run. A race condition may otherwise occur.
-    time.Sleep(100 * time.Millisecond)
+	// Wait 100 milliseconds to ensure that the http server has started
+	// before the integration tests are run. A race condition may otherwise occur.
+	time.Sleep(100 * time.Millisecond)
 
 	return nil
 }
@@ -88,7 +97,7 @@ func createFileFixtures(directory string) error {
 
 	return testutil.FillDirectory(directory, testutil.FileTree{
 		Dirs: map[string]*testutil.FileTree{
-			"nested": &testutil.FileTree{
+			"nested": {
 				Files: []string{"ignore.jpg"},
 			},
 		},
@@ -103,11 +112,28 @@ func createDBFixtures() error {
 		images[k] = v
 	}
 
-	return testutil.InsertIntoMongoDb(
+	categories := make([]interface{}, len(categoryFixtures))
+	for k, v := range categoryFixtures {
+		categories[k] = v
+	}
+
+	if err := testutil.InsertIntoMongoDb(
 		config.GetConfig().Database_Host,
 		config.GetConfig().Database,
 		"images", images,
-	)
+	); err != nil {
+		return err
+	}
+
+	if err := testutil.InsertIntoMongoDb(
+		config.GetConfig().Database_Host,
+		config.GetConfig().Database,
+		"categories", categories,
+	); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // dropDb connects to and drops the database as specified in the config.
@@ -213,11 +239,11 @@ func testGetCategories(t *testing.T) {
 		t.Errorf(format, args...)
 	}
 
-	if !reflect.DeepEqual(categories, model.Categories) {
+	if !reflect.DeepEqual(categories, categoryFixtures) {
 		format, args := testutil.FormatTestError(
 			"Returned categories do not match expectations.",
 			map[string]interface{}{
-				"expected": model.Categories,
+				"expected": categoryFixtures,
 				"got":      categories,
 			})
 		t.Errorf(format, args...)
