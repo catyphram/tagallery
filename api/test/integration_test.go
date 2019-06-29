@@ -17,6 +17,15 @@ import (
 	"tagallery.com/api/util"
 )
 
+var categoryFixtures = []model.Category{
+	{Name: "Category 1", Key: "category1", Description: "Category 1 description."},
+	{Name: "Category 2", Key: "category2", Description: "Category 2 description."},
+	{Name: "Category 3", Key: "category3", Description: "Category 3 description."},
+	{Name: "Category 4", Key: "category4", Description: "Category 4 description."},
+	{Name: "Category 5", Key: "category5", Description: "Category 5 description."},
+	{Name: "Category 6", Key: "category6", Description: "Category 6 description."},
+}
+
 var imageFixtures = []model.Image{
 	{File: "kQqIEGzwy6.jpg"},
 	{File: "QLRLhnOrzA.jpg", AssignedCategories: []string{"Category 1", "Category 2"}},
@@ -38,15 +47,6 @@ var imageFixtures = []model.Image{
 	{File: "GB3kVzAvfq", AssignedCategories: []string{"Category 2"}, ProposedCategories: []string{"Category 1", "Category 2"}},
 	{File: "cUanJL8LAs.jpg", StarredCategory: "Category 2"},
 	{File: "4jZUXo1cuG.jpg"},
-}
-
-var categoryFixtures = []model.Category{
-	{Name: "Category 1", Key: "category1", Description: "Category 1 description."},
-	{Name: "Category 2", Key: "category2", Description: "Category 2 description."},
-	{Name: "Category 3", Key: "category3", Description: "Category 3 description."},
-	{Name: "Category 4", Key: "category4", Description: "Category 4 description."},
-	{Name: "Category 5", Key: "category5", Description: "Category 5 description."},
-	{Name: "Category 6", Key: "category6", Description: "Category 6 description."},
 }
 
 // fileFixtures has to be sorted alphabetically to match the order of the returned images of the API.
@@ -107,28 +107,29 @@ func createFileFixtures(directory string) error {
 
 // createDBFixtures inserts a set of test images into the database.
 func createDBFixtures() error {
+    host := config.GetConfig().Database_Host
+    database := config.GetConfig().Database
+
+    categories := make([]interface{}, len(categoryFixtures))
+    for k, v := range categoryFixtures {
+        categories[k] = v
+    }
+
 	images := make([]interface{}, len(imageFixtures))
 	for k, v := range imageFixtures {
 		images[k] = v
-	}
-
-	categories := make([]interface{}, len(categoryFixtures))
-	for k, v := range categoryFixtures {
-		categories[k] = v
-	}
+    }
 
 	if err := testutil.InsertIntoMongoDb(
-		config.GetConfig().Database_Host,
-		config.GetConfig().Database,
-		"images", images,
+		host, database,
+		"categories", categories,
 	); err != nil {
 		return err
 	}
-
+    
 	if err := testutil.InsertIntoMongoDb(
-		config.GetConfig().Database_Host,
-		config.GetConfig().Database,
-		"categories", categories,
+		host, database,
+		"images", images,
 	); err != nil {
 		return err
 	}
@@ -167,7 +168,9 @@ func init() {
 
 func TestAPI(t *testing.T) {
 
-	var directory = config.GetConfig().Unprocessed_Images
+    var directory = config.GetConfig().Unprocessed_Images
+    
+    defer dropDb(t)    
 
 	if err := createDBFixtures(); err != nil {
 		format, args := testutil.FormatTestError(
@@ -178,7 +181,6 @@ func TestAPI(t *testing.T) {
 		t.Errorf(format, args...)
 		return
 	}
-	defer dropDb(t)
 
 	if err := createFileFixtures(directory); err != nil {
 		format, args := testutil.FormatTestError(

@@ -1,4 +1,4 @@
-import { getters, mutations, actions } from '@/store';
+import { getters, mutations, actions, state as defaultState } from '@/store';
 import { Category, LIST_MODE, Image } from '@/models';
 
 jest.mock('@/api/api');
@@ -7,6 +7,7 @@ describe('store.ts', () => {
   describe('getters', () => {
     it('isCategorySelected should return true if a category is found in selectedCategories', () => {
       const state = {
+        ...defaultState,
         selectedCategories: [
           { name: 'Category 1' }, { name: 'Category 2' }, { name: 'Category 3' },
         ] as Category[],
@@ -19,9 +20,11 @@ describe('store.ts', () => {
     it('updateCategories should set the categories and loading status in the state', () => {
       const categories = [{ name: 'Category 1' }, { name: 'Category 2' } ] as Category[];
       const state = {
+        ...defaultState,
         categories: {
           data: [] as Category[],
           loading: true,
+          error: null,
         },
       };
       mutations.updateCategories(state, {
@@ -35,6 +38,7 @@ describe('store.ts', () => {
     it('updateImages should set the images, completed and loading status in the state', () => {
       const images = [{ file: 'test1.jpg' }, { file: 'test2.jpg' } ] as Image[];
       const state = {
+        ...defaultState,
         images: {
           data: [] as Image[],
           loading: true,
@@ -56,7 +60,9 @@ describe('store.ts', () => {
       const images = [{ file: 'test1.jpg' }, { file: 'test2.jpg' } ] as Image[];
       const newImages = [{ file: 'test3.jpg' }, { file: 'test4.jpg' } ] as Image[];
       const state = {
+        ...defaultState,
         images: {
+          completed: false,
           data: [...images],
           loading: true,
         },
@@ -71,6 +77,7 @@ describe('store.ts', () => {
 
     it('setMode should set the mode in the state', () => {
       const state = {
+        ...defaultState,
         listMode: LIST_MODE.MODE_VIEW,
       };
       mutations.setMode(state, { mode: LIST_MODE.MODE_VERIFY });
@@ -81,6 +88,7 @@ describe('store.ts', () => {
     it('selectCategory should add the category in the state and unset #listUncategorized', () => {
       const category = { name: 'Category 1' } as Category;
       const state = {
+        ...defaultState,
         selectedCategories: [] as Category[],
         listUncategorized: true,
       };
@@ -98,7 +106,10 @@ describe('store.ts', () => {
       const cat2 = { name: 'Category 2' } as Category;
       const cat3 = { name: 'Category 3' } as Category;
       const categories = [cat1, cat2, cat3 ];
-      const state = { selectedCategories: categories };
+      const state = {
+        ...defaultState,
+        selectedCategories: categories,
+      };
 
       mutations.unselectCategory(state, { category: { name: 'Category 0' } as Category });
       expect(state.selectedCategories).toEqual([cat1, cat2, cat3 ]);

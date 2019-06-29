@@ -5,8 +5,7 @@ import (
 	"tagallery.com/api/mongodb"
 )
 
-// GetCategories gets all categories from the DB.
+// GetCategories returns all categories from the db.
 func GetCategories() ([]model.Category, error) {
-	categories, err := mongodb.GetCategories()
-	return categories, err
+	return mongodb.GetCategories()
 }

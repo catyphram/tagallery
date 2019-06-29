@@ -4,4 +4,5 @@ api/api.exe
 mongodb/*
 !mongodb/.gitkeep
 client/coverage/
+client/config.json
 node_modules

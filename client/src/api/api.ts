@@ -1,13 +1,14 @@
 import { Category, Image } from '@/models';
 
+import config from '../../config.json';
+
 /**
  * loadCategories loads the categories from the API.
  */
 export const loadCategories = async (): Promise<Category[]> => {
-  return await [
-      { name: 'Category 1', key: 'cat1', description: 'Category 1' },
-      { name: 'Category 2', key: 'cat2', description: 'Category 2' },
-  ];
+  return fetch(`${config.api}/categories`).then((response) => {
+      return response.json() as Promise<Category[]>;
+  }).catch((error) => Promise.reject(error));
 };
 
 // Additional parameter for the local stub only so the URL differs on reload
