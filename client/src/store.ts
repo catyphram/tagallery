@@ -6,10 +6,27 @@ import { Category, Image, LIST_MODE } from './models';
 
 Vue.use(Vuex);
 
-export const state = {
+export interface State  {
+  categories: {
+    loading: boolean;
+    data: Category[];
+    error: null | string;
+  };
+  images: {
+    loading: boolean;
+    completed: boolean;
+    data: Image[];
+  };
+  listMode: LIST_MODE;
+  selectedCategories: Category[];
+  listUncategorized: boolean;
+}
+
+export const state: State = {
   categories: {
     loading: false,
     data: [] as Category[],
+    error: null,
   },
   images: {
     loading: false,
@@ -22,15 +39,18 @@ export const state = {
 };
 
 export const getters = {
-  isCategorySelected: (state) => (category: Category) => state.selectedCategories.includes(category),
+  isCategorySelected: (state: State) => (category: Category) => state.selectedCategories.includes(category),
 };
 
 export const mutations = {
-  updateCategories(state, { categories, loading = false }: { categories?: Category[], loading?: boolean }) {
+  updateCategories(state: State, {
+    categories, loading = false, error = null,
+  }: { categories: Category[], loading?: boolean, error?: any }) {
     state.categories.data = categories;
     state.categories.loading = loading;
+    state.categories.error = error ? `${error}` : null;
   },
-  updateImages(state, {
+  updateImages(state: State, {
     images, loading = false, completed = false, append = false,
   }: { images: Image[], loading?: boolean, completed?: boolean, append?: boolean }) {
     if (append) {
@@ -41,16 +61,16 @@ export const mutations = {
     state.images.loading = loading;
     state.images.completed = completed;
   },
-  setMode(state, { mode }: {mode: LIST_MODE}) {
+  setMode(state: State, { mode }: { mode: LIST_MODE }) {
     state.listMode = mode;
   },
-  selectCategory(state, { category }: { category: Category }) {
+  selectCategory(state: State, { category }: { category: Category }) {
     if (!state.selectedCategories.includes(category)) {
       state.selectedCategories.push(category);
       state.listUncategorized = false;
     }
   },
-  unselectCategory(state, { category }: { category: Category }) {
+  unselectCategory(state: State, { category }: { category: Category }) {
     for (let i = 0; i < state.selectedCategories.length; i++) {
       if (state.selectedCategories[i] === category) {
         state.selectedCategories.splice(i, 1);
@@ -72,10 +92,20 @@ export const actions = {
       categories: [],
       loading: true,
     });
-    context.commit('updateCategories', {
-      categories: await api.loadCategories(),
-      loading: false,
-    });
+
+    try {
+      context.commit('updateCategories', {
+        categories: await api.loadCategories(),
+        loading: false,
+      });
+    } catch (error) {
+      context.commit('updateCategories', {
+        categories: [],
+        loading: false,
+        error,
+      });
+    }
+
     context.dispatch('loadImages');
   },
   async loadImages(context, append = false) {

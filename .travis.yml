@@ -21,12 +21,14 @@ matrix:
       env: GO111MODULE=on
       services: mongodb
     - language: node_js
-      node_js: "node"
+      node_js: "lts/*"
       before_install:
         - cd client
       install:
         - yarn global add codecov
         - yarn
+      before_script:
+        - cp config_example.json config.json
       script:
         - yarn lint && yarn test --collectCoverage --coverageDirectory="./coverage/" && yarn build
       after_success:

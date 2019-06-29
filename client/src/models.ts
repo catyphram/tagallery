@@ -15,3 +15,7 @@ export interface Image {
   proposedCategories?: string[];
   starredCategory?: string;
 }
+
+export interface Config {
+  api: string;
+}

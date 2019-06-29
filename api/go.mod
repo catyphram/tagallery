@@ -2,6 +2,7 @@ module tagallery.com/api
 
 require (
 	github.com/go-chi/chi v3.3.3+incompatible
+	github.com/go-chi/cors v1.0.0
 	github.com/go-chi/render v1.0.1
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db // indirect
