@@ -8,7 +8,7 @@ import config from '../../config.json';
 export const loadCategories = async (): Promise<Category[]> => {
   return fetch(`${config.api}/categories`).then((response) => {
       return response.json() as Promise<Category[]>;
-  }).catch((error) => Promise.reject(error));
+  });
 };
 
 // Additional parameter for the local stub only so the URL differs on reload

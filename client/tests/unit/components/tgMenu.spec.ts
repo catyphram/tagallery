@@ -24,7 +24,7 @@ const state = {
   listUncategorized: false,
 };
 
-const actions =  {
+const actions = {
   setMode: jest.fn(),
 };
 
@@ -37,6 +37,12 @@ const store = new Vuex.Store({
 });
 
 describe('TgMenu.vue', () => {
+  it('verifyMode should return true if the verify mode is set in the store', () => {
+    const wrapper = shallowMount(TgMenu, { store, localVue });
+    const view = wrapper.vm as any;
+    expect(view.verifyMode).toEqual(false);
+  });
+
   it('categories should select the categories from the store', () => {
     const wrapper = shallowMount(TgMenu, { store, localVue });
     const view = wrapper.vm as any;

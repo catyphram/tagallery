@@ -21,9 +21,10 @@
       </md-app-drawer>
 
       <md-app-content>
-        <gallery />
+        <tg-gallery />
       </md-app-content>
     </md-app>
+    <tg-overlay />
   </div>
 </template>
 
@@ -44,14 +45,16 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import Gallery from '@/views/Gallery.vue';
+import TgGallery from '@/views/TgGallery.vue';
 import TgMenu from '@/components/TgMenu.vue';
-import { LIST_MODE } from '@/models';
+import TgOverlay from '@/views/TgOverlay.vue';
+import { LIST_MODE } from './models';
 
 @Component({
   components: {
-    Gallery,
+    TgGallery,
     TgMenu,
+    TgOverlay,
   },
 })
 export default class App extends Vue {
