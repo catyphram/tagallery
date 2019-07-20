@@ -62,6 +62,91 @@ exports[`store.ts actions loadCategories should load the categories 1`] = `
 }
 `;
 
+exports[`store.ts actions loadCategories should load the categories 2`] = `
+[MockFunction] {
+  "calls": Array [
+    Array [
+      "updateCategories",
+      Object {
+        "categories": Array [],
+        "loading": true,
+      },
+    ],
+    Array [
+      "updateCategories",
+      Object {
+        "categories": Array [
+          Object {
+            "description": "Category 1",
+            "key": "cat1",
+            "name": "Category 1",
+          },
+          Object {
+            "description": "Category 2",
+            "key": "cat2",
+            "name": "Category 2",
+          },
+          Object {
+            "description": "Category 3",
+            "key": "cat3",
+            "name": "Category 3",
+          },
+          Object {
+            "description": "Category 4",
+            "key": "cat4",
+            "name": "Category 4",
+          },
+          Object {
+            "description": "Category 5",
+            "key": "cat5",
+            "name": "Category 5",
+          },
+          Object {
+            "description": "Category 6",
+            "key": "cat6",
+            "name": "Category 6",
+          },
+        ],
+        "loading": false,
+      },
+    ],
+    Array [
+      "updateCategories",
+      Object {
+        "categories": Array [],
+        "loading": true,
+      },
+    ],
+    Array [
+      "updateCategories",
+      Object {
+        "categories": Array [],
+        "error": "error",
+        "loading": false,
+      },
+    ],
+  ],
+  "results": Array [
+    Object {
+      "isThrow": false,
+      "value": undefined,
+    },
+    Object {
+      "isThrow": false,
+      "value": undefined,
+    },
+    Object {
+      "isThrow": false,
+      "value": undefined,
+    },
+    Object {
+      "isThrow": false,
+      "value": undefined,
+    },
+  ],
+}
+`;
+
 exports[`store.ts actions loadImages should load a batch of images 1`] = `
 [MockFunction] {
   "calls": Array [

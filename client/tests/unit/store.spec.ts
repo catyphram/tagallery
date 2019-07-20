@@ -1,5 +1,6 @@
 import { getters, mutations, actions, state as defaultState } from '@/store';
 import { Category, LIST_MODE, Image } from '@/models';
+import * as api from '@/api/api';
 
 jest.mock('@/api/api');
 
@@ -24,7 +25,7 @@ describe('store.ts', () => {
         categories: {
           data: [] as Category[],
           loading: true,
-          error: null,
+          error: undefined,
         },
       };
       mutations.updateCategories(state, {
@@ -33,6 +34,14 @@ describe('store.ts', () => {
 
       expect(state.categories.data).toBe(categories);
       expect(state.categories.loading).toBe(false);
+      expect(state.categories.error).toBeUndefined();
+
+      mutations.updateCategories(state, {
+        categories: [],
+        error: 'error',
+      });
+
+      expect(state.categories.error).toBe('error');
     });
 
     it('updateImages should set the images, completed and loading status in the state', () => {
@@ -73,6 +82,15 @@ describe('store.ts', () => {
       });
 
       expect(state.images.data).toEqual(images.concat(newImages));
+    });
+
+    it('selectImage should select the image', () => {
+      const state = {
+        ...defaultState,
+      };
+      mutations.selectImage(state, { index: 1 });
+
+      expect(state.selectedImage).toBe(1);
     });
 
     it('setMode should set the mode in the state', () => {
@@ -148,6 +166,12 @@ describe('store.ts', () => {
     it('loadCategories should load the categories', async () => {
       await actions.loadCategories(context);
       expect(context.commit).toMatchSnapshot();
+      (api.loadCategories as jest.Mock).mockImplementationOnce(() => {
+        return Promise.reject('error');
+      });
+      await actions.loadCategories(context);
+      expect(context.commit).toMatchSnapshot();
+
     });
 
     it('loadImages should load a batch of images', async () => {

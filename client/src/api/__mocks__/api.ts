@@ -1,6 +1,6 @@
 import { Category, Image } from '@/models';
 
-export const loadCategories = async (): Promise<Category[]> => {
+export const loadCategories = jest.fn(async (): Promise<Category[]> => {
   return await [
     { name: 'Category 1', key: 'cat1', description: 'Category 1' },
     { name: 'Category 2', key: 'cat2', description: 'Category 2' },
@@ -9,9 +9,9 @@ export const loadCategories = async (): Promise<Category[]> => {
     { name: 'Category 5', key: 'cat5', description: 'Category 5' },
     { name: 'Category 6', key: 'cat6', description: 'Category 6' },
   ];
-};
+});
 
-export const loadImages = async (): Promise<Image[]> => {
+export const loadImages = jest.fn(async (): Promise<Image[]> => {
   return await [
     { file: 'image0.jpg' },
     { file: 'image1.jpg' },
@@ -24,4 +24,4 @@ export const loadImages = async (): Promise<Image[]> => {
     { file: 'image8.jpg' },
     { file: 'image9.jpg' },
   ] as Image[];
-};
+});

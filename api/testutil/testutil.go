@@ -105,12 +105,13 @@ func CleanMongoDbFromConnection(db *mongo.Database) error {
 // CleanMongoDb drops all collections in mongo db.
 // Same as CleanMongoDbFromConnection, but requires host and database as arugments.
 func CleanMongoDb(host string, database string) error {
-	if db, err := OpenMongoDbConnection(host, database); err != nil {
+    db, err := OpenMongoDbConnection(host, database)
+	if err != nil {
 		return err
-	} else {
-		if err := CleanMongoDbFromConnection(db); err != nil {
-			return err
-		}
+    }
+    
+    if err = CleanMongoDbFromConnection(db); err != nil {
+        return err
 	}
 	return nil
 }

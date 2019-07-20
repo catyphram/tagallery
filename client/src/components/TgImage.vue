@@ -1,17 +1,22 @@
 <template>
-	<div class="tg-image">
+	<div @click="openOverlay" class="tg-image">
 		<div :style="`background-image: url(${image.file})`" />
 	</div>
 </template>
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator';
-import { Image } from '@/models';
+import { Image } from '../models';
 
 @Component
 export default class TgMenu extends Vue {
   @Prop({default: {}})
   public image!: Image;
+  @Prop()
+  public index!: number;
+  public openOverlay() {
+    this.$store.commit('selectImage', { index: this.index });
+  }
 }
 </script>
 

@@ -10,13 +10,14 @@ export interface State  {
   categories: {
     loading: boolean;
     data: Category[];
-    error: null | string;
+    error?: string;
   };
   images: {
     loading: boolean;
     completed: boolean;
     data: Image[];
   };
+  selectedImage?: number;
   listMode: LIST_MODE;
   selectedCategories: Category[];
   listUncategorized: boolean;
@@ -26,13 +27,13 @@ export const state: State = {
   categories: {
     loading: false,
     data: [] as Category[],
-    error: null,
   },
   images: {
     loading: false,
     completed: false,
     data: [] as Image[],
   },
+  selectedImage: undefined,
   listMode: LIST_MODE.MODE_VIEW,
   selectedCategories: [] as Category[],
   listUncategorized: false,
@@ -44,11 +45,11 @@ export const getters = {
 
 export const mutations = {
   updateCategories(state: State, {
-    categories, loading = false, error = null,
+    categories, loading = false, error,
   }: { categories: Category[], loading?: boolean, error?: any }) {
     state.categories.data = categories;
     state.categories.loading = loading;
-    state.categories.error = error ? `${error}` : null;
+    state.categories.error = error ? `${error}` : undefined;
   },
   updateImages(state: State, {
     images, loading = false, completed = false, append = false,
@@ -60,6 +61,9 @@ export const mutations = {
     }
     state.images.loading = loading;
     state.images.completed = completed;
+  },
+  selectImage(state: State, { index }: { index?: number }) {
+    state.selectedImage = index;
   },
   setMode(state: State, { mode }: { mode: LIST_MODE }) {
     state.listMode = mode;
