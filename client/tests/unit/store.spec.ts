@@ -84,6 +84,38 @@ describe('store.ts', () => {
       expect(state.images.data).toEqual(images.concat(newImages));
     });
 
+    it('updateImage should update the images', () => {
+      const images: Image[] = [{
+        file: 'test1.jpg',
+      }, {
+        file: 'test2.jpg',
+      }];
+
+      const newImage: Image = {
+        file: 'test2.jpg',
+        proposedCategories: ['category1'],
+        assignedCategories: ['category2'],
+        starredCategory: 'category3',
+      };
+      const state = {
+        ...defaultState,
+        images: {
+          completed: false,
+          data: images,
+          loading: true,
+        },
+      };
+      mutations.updateImage(state, {
+        image: newImage,
+      });
+
+      mutations.updateImage(state, {
+        image: { file: 'test3.jpg' },
+      });
+
+      expect(state.images.data).toMatchSnapshot();
+    });
+
     it('selectImage should select the image', () => {
       const state = {
         ...defaultState,
@@ -163,6 +195,47 @@ describe('store.ts', () => {
       };
     });
 
+    describe('toggleImageCategory should toggle an assigned category for an image', () => {
+      const category: Category = {
+        name: 'Category 1',
+        key: 'category1',
+      };
+
+      it('when no categories are assigned or proposed', async () => {
+        const image: Image = { file: '' };
+
+        await actions.toggleImageCategory(context, { image, category });
+
+        expect(context.commit.mock.calls).toMatchSnapshot();
+      });
+
+      it('when the request succeeds', async () => {
+        const image: Image = { file: '' };
+
+        (api.updateImage as jest.Mock).mockImplementationOnce(() => {
+          return Promise.reject('error');
+        });
+        await actions.toggleImageCategory(context, { image, category });
+        expect(context.commit.mock.calls).toMatchSnapshot();
+      });
+
+      it('when the category is assigned', async () => {
+        const image: Image = { file: '', assignedCategories: ['category0', category.key] };
+
+        await actions.toggleImageCategory(context, { image, category });
+
+        expect(context.commit.mock.calls).toMatchSnapshot();
+      });
+
+      it('when the category is proposed', async () => {
+        const image: Image = { file: '', proposedCategories: [category.key] };
+
+        await actions.toggleImageCategory(context, { image, category });
+
+        expect(context.commit.mock.calls).toMatchSnapshot();
+      });
+    });
+
     it('loadCategories should load the categories', async () => {
       await actions.loadCategories(context);
       expect(context.commit).toMatchSnapshot();
@@ -171,7 +244,6 @@ describe('store.ts', () => {
       });
       await actions.loadCategories(context);
       expect(context.commit).toMatchSnapshot();
-
     });
 
     it('loadImages should load a batch of images', async () => {

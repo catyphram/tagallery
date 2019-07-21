@@ -8,14 +8,14 @@
         <template v-if="!categoriesLoading && categories.length > 0">
           <md-list-item v-for="category in categories" :key="category.key">
             <md-button
-              v-on:click="$store.dispatch('toggleCategory', category)"
+              @click="$store.dispatch('toggleCategory', category)"
               :class="{'md-raised': $store.getters.isCategorySelected(category)}"
             >{{category.name}}</md-button>
           </md-list-item>
         </template>
         <md-list-item>
           <md-button
-            v-on:click="$store.dispatch('toggleListUncategorized')"
+            @click="$store.dispatch('toggleListUncategorized')"
             :class="{'md-raised': $store.state.listUncategorized}"
           >Uncategorized</md-button>
         </md-list-item>

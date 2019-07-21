@@ -62,6 +62,16 @@ export const mutations = {
     state.images.loading = loading;
     state.images.completed = completed;
   },
+  updateImage(state: State, { image }: { image: Image }) {
+    const imageIndex = state.images.data.findIndex((storeImage) => {
+      return storeImage.file === image.file;
+    });
+    if (imageIndex >= 0) {
+      state.images.data[imageIndex].assignedCategories = image.assignedCategories;
+      state.images.data[imageIndex].proposedCategories = image.proposedCategories;
+      state.images.data[imageIndex].starredCategory = image.starredCategory;
+    }
+  },
   selectImage(state: State, { index }: { index?: number }) {
     state.selectedImage = index;
   },
@@ -91,6 +101,42 @@ export const mutations = {
 };
 
 export const actions = {
+  async toggleImageCategory(context, { image, category }: {
+    image: Image, category: Category,
+  }) {
+    const newImage: Image = { ...image };
+
+    if (image.proposedCategories) {
+      newImage.proposedCategories = image.proposedCategories.filter((proposedCategory) => {
+        return proposedCategory !== category.key;
+      });
+    }
+
+    let assignCategory = true;
+
+    if (image.assignedCategories) {
+      newImage.assignedCategories = image.assignedCategories.filter((assignedCategory) => {
+        if (assignedCategory === category.key) {
+          assignCategory = false;
+          return false;
+        }
+        return true;
+      });
+    } else {
+      newImage.assignedCategories = [];
+    }
+
+    if (assignCategory) {
+      newImage.assignedCategories.push(category.key);
+    }
+
+    context.commit('updateImage', { image: newImage });
+    try {
+      await api.updateImage(newImage);
+    } catch (error) {
+      context.commit('updateImage', { image });
+    }
+  },
   async loadCategories(context) {
     context.commit('updateCategories', {
       categories: [],
@@ -119,6 +165,7 @@ export const actions = {
       append,
     });
 
+    // @TODO: Add error handling, set loading to false
     const images = await api.loadImages();
     context.commit('updateImages', {
       images,
