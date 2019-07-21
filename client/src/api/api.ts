@@ -25,10 +25,21 @@ export const loadImages = async (): Promise<Image[]> => {
   for (let i = 0; i < 30; i++) {
     stubImages.push({
       file: `https://picsum.photos/400/400/?random&key=${counter}-${i}`,
+      proposedCategories: undefined,
+      starredCategory: undefined,
+      assignedCategories: undefined,
     } as Image);
   }
 
   counter++;
 
   return await stubImages;
+};
+
+/**
+ * @param image Image
+ * @todo Implement
+ */
+export const updateImage = async (image: Image): Promise<boolean> => {
+  return await true;
 };

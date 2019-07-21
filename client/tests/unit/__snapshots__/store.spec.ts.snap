@@ -332,3 +332,94 @@ exports[`store.ts actions loadImages should load a batch of images 2`] = `
   ],
 }
 `;
+
+exports[`store.ts actions toggleImageCategory should toggle an assigned category for an image when no categories are assigned or proposed 1`] = `
+Array [
+  Array [
+    "updateImage",
+    Object {
+      "image": Object {
+        "assignedCategories": Array [
+          "category1",
+        ],
+        "file": "",
+      },
+    },
+  ],
+]
+`;
+
+exports[`store.ts actions toggleImageCategory should toggle an assigned category for an image when the category is assigned 1`] = `
+Array [
+  Array [
+    "updateImage",
+    Object {
+      "image": Object {
+        "assignedCategories": Array [
+          "category0",
+        ],
+        "file": "",
+      },
+    },
+  ],
+]
+`;
+
+exports[`store.ts actions toggleImageCategory should toggle an assigned category for an image when the category is proposed 1`] = `
+Array [
+  Array [
+    "updateImage",
+    Object {
+      "image": Object {
+        "assignedCategories": Array [
+          "category1",
+        ],
+        "file": "",
+        "proposedCategories": Array [],
+      },
+    },
+  ],
+]
+`;
+
+exports[`store.ts actions toggleImageCategory should toggle an assigned category for an image when the request succeeds 1`] = `
+Array [
+  Array [
+    "updateImage",
+    Object {
+      "image": Object {
+        "assignedCategories": Array [
+          "category1",
+        ],
+        "file": "",
+      },
+    },
+  ],
+  Array [
+    "updateImage",
+    Object {
+      "image": Object {
+        "file": "",
+      },
+    },
+  ],
+]
+`;
+
+exports[`store.ts mutations updateImage should update the images 1`] = `
+Array [
+  Object {
+    "file": "test1.jpg",
+  },
+  Object {
+    "assignedCategories": Array [
+      "category2",
+    ],
+    "file": "test2.jpg",
+    "proposedCategories": Array [
+      "category1",
+    ],
+    "starredCategory": "category3",
+  },
+]
+`;

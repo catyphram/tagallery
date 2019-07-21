@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TgOverlay.vue categories should select and map the categories from the store 1`] = `
+Array [
+  Object {
+    "assigned": false,
+    "category": Object {
+      "key": "category1",
+      "name": "Category 1",
+    },
+    "proposed": true,
+  },
+  Object {
+    "assigned": true,
+    "category": Object {
+      "key": "category2",
+      "name": "Category 2",
+    },
+    "proposed": false,
+  },
+]
+`;
+
+exports[`TgOverlay.vue toggleImageCategory should toggle a assigned category of an image 1`] = `
+Array [
+  Array [
+    "toggleImageCategory",
+    Object {
+      "category": Object {
+        "key": "category1",
+        "name": "Category 1",
+      },
+      "image": Object {
+        "file": "test1.jpg",
+      },
+    },
+  ],
+]
+`;

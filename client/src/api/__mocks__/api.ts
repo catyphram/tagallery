@@ -25,3 +25,7 @@ export const loadImages = jest.fn(async (): Promise<Image[]> => {
     { file: 'image9.jpg' },
   ] as Image[];
 });
+
+export const updateImage = jest.fn(async (image): Promise<boolean> => {
+  return await true;
+});
