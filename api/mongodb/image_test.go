@@ -1,73 +1,70 @@
-package mongodb
+package mongodb_test
 
 import (
+	"context"
+	"fmt"
 	"reflect"
 	"testing"
 
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"tagallery.com/api/config"
+	"tagallery.com/api/logger"
 	"tagallery.com/api/model"
+	"tagallery.com/api/mongodb"
 	"tagallery.com/api/testutil"
+	"tagallery.com/api/util"
 )
+
+func init() {
+	logger.Setup(true)
+}
 
 var imageFixtures = []model.Image{
 	{File: "test1.jpg"},
 	{File: "test2.jpg", AssignedCategories: []string{"Category 1", "Category 2"}},
 	{File: "test3.jpg", ProposedCategories: []string{"Category 2"}},
-	{File: "test4.jpg", StarredCategory: "Category 1"},
+	{File: "test4.jpg", StarredCategory: util.StringPtr("Category 1")},
 	{File: "test5.jpg", AssignedCategories: []string{"Category 2"}, ProposedCategories: []string{"Category 1", "Category 3"}},
-	{File: "test6.jpg", ProposedCategories: []string{"Category 1"}, StarredCategory: "Category 2"},
+	{File: "test6.jpg", ProposedCategories: []string{"Category 1"}, StarredCategory: util.StringPtr("Category 2")},
 }
 
-// createImageFixtures creates a set of image entries in the database for testing.
-func createImageFixtures(host string, database string) error {
+// createImageFixtures inserts the image fixtures into the database.
+func createImageFixtures(ctx context.Context, db string) error {
+	collection := mongodb.Client().Database(db).Collection("image")
+
 	images := make([]interface{}, len(imageFixtures))
 	for k, v := range imageFixtures {
 		images[k] = v
 	}
 
-	return testutil.InsertIntoMongoDb(host, database, "images", images)
-}
+	_, err := collection.InsertMany(ctx, images, options.InsertMany())
 
-func init() {
-	config.Load()
-
-	// Manually set the config here for debugging without a config file or env vars
-	// config.SetConfig(config.Configuration{
-	// 	Database:      "tagallery",
-	// 	Database_Host: "localhost:27017",
-	// })
+	return err
 }
 
 func TestGetImages(t *testing.T) {
 	var dbImages []model.Image
 	var expectedImages []model.Image
 
-	if err := createImageFixtures(
-		config.GetConfig().Database_Host,
-		config.GetConfig().Database,
-	); err != nil {
+	configuration := config.Load()
+
+	mongodb.Connect(context.Background(), fmt.Sprintf(`mongodb://%s`, configuration.DatabaseHost))
+	defer testutil.CleanCollection(t, configuration.Database, "image")
+
+	if err := createImageFixtures(context.Background(), configuration.Database); err != nil {
 		format, args := testutil.FormatTestError(
 			"Unable to create image fixtures in the database.",
 			map[string]interface{}{
 				"error": err,
 			})
-		t.Errorf(format, args...)
-		return
+		t.Fatalf(format, args...)
 	}
 
-	defer testutil.DropMongoDb(
-		config.GetConfig().Database_Host,
-		config.GetConfig().Database,
-		t,
-	)
-
-	Init(DatabaseOptions{
-		Host:     config.GetConfig().Database_Host,
-		Database: config.GetConfig().Database,
-	})
-
 	expectedImages = imageFixtures
-	dbImages, _ = GetImages(10, &model.CategoryMap{}, "")
+	dbImages, _ = mongodb.GetImages(
+		model.ImageOptions{Count: util.IntPtr(10)},
+		&model.CategoryMap{},
+	)
 
 	if !reflect.DeepEqual(dbImages, expectedImages) {
 		format, args := testutil.FormatTestError(
@@ -83,7 +80,10 @@ func TestGetImages(t *testing.T) {
 		imageFixtures[1],
 		imageFixtures[2],
 	}
-	dbImages, _ = GetImages(3, &model.CategoryMap{}, "")
+	dbImages, _ = mongodb.GetImages(
+		model.ImageOptions{Count: util.IntPtr(3)},
+		&model.CategoryMap{},
+	)
 	if !reflect.DeepEqual(dbImages, expectedImages) {
 		format, args := testutil.FormatTestError(
 			"Expected images from database to equal the fixture.", map[string]interface{}{
@@ -98,7 +98,13 @@ func TestGetImages(t *testing.T) {
 		imageFixtures[4],
 		imageFixtures[5],
 	}
-	dbImages, _ = GetImages(10, &model.CategoryMap{}, imageFixtures[2].File)
+	dbImages, _ = mongodb.GetImages(
+		model.ImageOptions{
+			Count:     util.IntPtr(10),
+			LastImage: util.StringPtr(imageFixtures[2].File),
+		},
+		&model.CategoryMap{},
+	)
 	if !reflect.DeepEqual(dbImages, expectedImages) {
 		format, args := testutil.FormatTestError(
 			"Expected images from database to equal the fixture.", map[string]interface{}{
@@ -109,7 +115,10 @@ func TestGetImages(t *testing.T) {
 	}
 
 	expectedImages = []model.Image{imageFixtures[0]}
-	dbImages, _ = GetImages(10, nil, "")
+	dbImages, _ = mongodb.GetImages(
+		model.ImageOptions{Count: util.IntPtr(10)},
+		nil,
+	)
 	if !reflect.DeepEqual(dbImages, expectedImages) {
 		format, args := testutil.FormatTestError(
 			"Expected images from database to equal the fixture.", map[string]interface{}{
@@ -123,9 +132,12 @@ func TestGetImages(t *testing.T) {
 		imageFixtures[1],
 		imageFixtures[4],
 	}
-	dbImages, _ = GetImages(10, &model.CategoryMap{
-		Assigned: []string{"Category 2"},
-	}, "")
+	dbImages, _ = mongodb.GetImages(
+		model.ImageOptions{Count: util.IntPtr(10)},
+		&model.CategoryMap{
+			Assigned: []string{"Category 2"},
+		},
+	)
 	if !reflect.DeepEqual(dbImages, expectedImages) {
 		format, args := testutil.FormatTestError(
 			"Expected images from database to equal the fixture.", map[string]interface{}{
@@ -139,9 +151,12 @@ func TestGetImages(t *testing.T) {
 		imageFixtures[4],
 		imageFixtures[5],
 	}
-	dbImages, _ = GetImages(10, &model.CategoryMap{
-		Proposed: []string{"Category 1"},
-	}, "")
+	dbImages, _ = mongodb.GetImages(
+		model.ImageOptions{Count: util.IntPtr(10)},
+		&model.CategoryMap{
+			Proposed: []string{"Category 1"},
+		},
+	)
 	if !reflect.DeepEqual(dbImages, expectedImages) {
 		format, args := testutil.FormatTestError(
 			"Expected images from database to equal the fixture.", map[string]interface{}{
@@ -152,9 +167,12 @@ func TestGetImages(t *testing.T) {
 	}
 
 	expectedImages = []model.Image{imageFixtures[3]}
-	dbImages, _ = GetImages(10, &model.CategoryMap{
-		Starred: "Category 1",
-	}, "")
+	dbImages, _ = mongodb.GetImages(
+		model.ImageOptions{Count: util.IntPtr(10)},
+		&model.CategoryMap{
+			Starred: util.StringPtr("Category 1"),
+		},
+	)
 	if !reflect.DeepEqual(dbImages, expectedImages) {
 		format, args := testutil.FormatTestError(
 			"Expected images from database to equal the fixture.", map[string]interface{}{
@@ -166,24 +184,19 @@ func TestGetImages(t *testing.T) {
 }
 
 func TestUpsertImage(t *testing.T) {
-	defer testutil.DropMongoDb(
-		config.GetConfig().Database_Host,
-		config.GetConfig().Database,
-		t,
-	)
-
-	Init(DatabaseOptions{
-		Host:     config.GetConfig().Database_Host,
-		Database: config.GetConfig().Database,
-	})
+	configuration := config.Load()
 
 	image := model.Image{
 		File: "test",
 	}
-	err := UpsertImage(image)
+
+	mongodb.Connect(context.Background(), fmt.Sprintf(`mongodb://%s`, configuration.DatabaseHost))
+	defer testutil.CleanCollection(t, configuration.Database, "image")
+
+	err := mongodb.UpsertImage(image)
 	if err != nil {
 		format, args := testutil.FormatTestError(
-			"Expected image to be inserted, but got error.",
+			"Expected image to be inserted.",
 			map[string]interface{}{
 				"error": err,
 			})

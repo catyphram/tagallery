@@ -1,55 +1,49 @@
 package mongodb
 
 import (
-	"github.com/mongodb/mongo-go-driver/bson/objectid"
-	log "github.com/sirupsen/logrus"
+	"context"
+	"time"
+
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"tagallery.com/api/config"
 	"tagallery.com/api/model"
 )
 
-// DBCategory encapsulates a model.Category and it's id in the db
-type DBCategory struct {
-	model.Category
-	Id objectid.ObjectID `json:"id" bson:"_id"`
-}
+// QueryCategories returns all categories.
+func QueryCategories() ([]model.Category, error) {
+	client := Client()
 
-// GetCategories queries the database for categories.
-func GetCategories() ([]model.Category, error) {
-	db, ctx, err := GetConnection()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	collection := client.Database(config.Get().Database).Collection("category")
+
+	cur, err := collection.Find(ctx, bson.M{})
 
 	if err != nil {
 		return nil, err
 	}
 
-	c, err := db.Collection("categories").Find(ctx, nil)
+	categories := []model.Category{}
 
-	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-		}).Error("Failed to get cursor for categories in database.")
-		return nil, err
-	}
-
-	defer c.Close(ctx)
-
-	var categories []model.Category
-
-	for c.Next(ctx) {
-		category := model.Category{}
-		err := c.Decode(&category)
-		if err != nil {
-			log.WithFields(log.Fields{
-				"error": err,
-			}).Error("Failed to parse category object from bson during select of categories.")
-			return nil, err
-		}
-		categories = append(categories, category)
-	}
-	if err = c.Err(); err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-		}).Error("Cursor failed during listing of categories in database.")
+	if err := cur.All(ctx, &categories); err != nil {
 		return nil, err
 	}
 
 	return categories, nil
+}
+
+// UpsertCategory inserts a category or updates it if a category with the same name already exists.
+// The name is compared case insensitive.
+func UpsertCategory(category model.Category) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	collection := Client().Database(config.Get().Database).Collection("category")
+
+	opts := options.Replace().SetCollation(&options.Collation{Strength: 2, Locale: "en"}).SetUpsert(true)
+	_, err := collection.ReplaceOne(ctx, bson.M{"name": category.Name}, category, opts)
+
+	return err
 }

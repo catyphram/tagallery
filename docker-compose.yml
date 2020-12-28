@@ -1,23 +1,27 @@
 version: '3'
 services:
-  client:
-    build: ./client/
-    container_name: tg-client
-    ports:
-      - "80:80"
-    depends_on:
-      - api
-    environment:
-      - PORT=3333
-      - DATABASE=tagallery
-      - DATABASE_HOST=tg-mongodb
+  # client:
+  #   build: ./client/
+  #   container_name: tg-client
+  #   ports:
+  #     - "80:80"
+  #   depends_on:
+  #     - api
   api:
     build: ./api/
     container_name: tg-api
     depends_on:
       - mongodb
+    environment:
+      - DATABASE_HOST=tg-mongodb
+      - DATABASE=tagallery
+      - DEBUG=false
+      - PORT=3333
+      - IMAGES=tg-images
+    volumes:
+      - ./images:/tg-images
   mongodb:
-    image: mongo:4.0
+    image: mongo:4
     container_name: tg-mongodb
     volumes:
       - ./mongodb:/data/db

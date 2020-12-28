@@ -1,6 +1,6 @@
 import { loadCategories, loadImages, updateImage } from '@/api/api';
 import { loadCategories as mockloadCategories } from '@/api/__mocks__/api';
-import config from '../../../config.json';
+import config from '../../../config.js';
 import { Image } from '@/models.js';
 
 describe('api.ts', () => {

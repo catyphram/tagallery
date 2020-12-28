@@ -1,53 +1,72 @@
-// Package config loads and provides the configuration options.
-// The options may be specified as environment variables or
-// a json file can be provided via the command line flag --config.
 package config
 
 import (
-	"flag"
-
-	"github.com/tkanos/gonfig"
+	"os"
+	"path/filepath"
+	"strconv"
 )
 
+// Configuration structures all available configuration options.
 type Configuration struct {
-	Database           string `json:"database" env:"DATABASE"`
-	Database_Host      string `json:"databaseHost" env:"DATABASE_HOST"`
-	Unprocessed_Images string `json:"unprocessedImages" env:"UNPROCESSED_IMAGES"`
-	Port               int    `json:"port" env:"PORT"`
+	Database                string
+	DatabaseHost            string
+	Debug                   bool
+	Port                    int
+	Images                  string
+	UnprocessedImagesFolder string
+	ProcessedImagesFolder   string
 }
 
-const (
-	configDefault = ""
-	configDesc    = "Location of the configuration file"
-)
+var config *Configuration
 
-var configuration Configuration
-var configPath string
-var loaded = false
+// Get returns the current configuration. Make sure to call Load() beforehand.
+func Get() *Configuration {
+	return config
+}
 
-// parseFlags parses the command line flags and returns the path of the config file
-func parseFlags() {
-	if !loaded {
-		flag.StringVar(&configPath, "c", configDefault, configDesc+" (shorthand)")
-		flag.StringVar(&configPath, "config", configDefault, configDesc)
-		flag.Parse()
+// Load loads the configuration options from the env variables.
+func Load() *Configuration {
+	config = &Configuration{
+		DatabaseHost:            getEnv("DATABASE_HOST", "localhost:27017"),
+		Database:                getEnv("DATABASE", "tagallery"),
+		Debug:                   getEnvAsBool("DEBUG", false),
+		Port:                    getEnvAsInt("PORT", 3333),
+		Images:                  getEnv("IMAGES", filepath.Join(getExecutableDir(), "images")),
+		UnprocessedImagesFolder: "unprocessed",
+		ProcessedImagesFolder:   "processed",
 	}
 
-	loaded = true
+	return config
 }
 
-// Load loads the configuration from the config file and env params.
-func Load() error {
-	parseFlags()
-	return gonfig.GetConf(configPath, &configuration)
+func getExecutableDir() string {
+	if ex, err := os.Executable(); err != nil {
+		return filepath.Dir(ex)
+	}
+
+	return ""
 }
 
-// GetConfig returns the current configuration
-func GetConfig() Configuration {
-	return configuration
+func getEnv(key string, defaultValue string) string {
+	if value, exists := os.LookupEnv(key); exists {
+		return value
+	}
+
+	return defaultValue
 }
 
-// SetConfig sets a new configuration
-func SetConfig(config Configuration) {
-	configuration = config
+func getEnvAsInt(key string, defaultValue int) int {
+	valueStr := getEnv(key, "")
+	if value, err := strconv.Atoi(valueStr); err == nil {
+		return value
+	}
+	return defaultValue
+}
+
+func getEnvAsBool(name string, defaultValue bool) bool {
+	valStr := getEnv(name, "")
+	if value, err := strconv.ParseBool(valStr); err == nil {
+		return value
+	}
+	return defaultValue
 }

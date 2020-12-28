@@ -32,7 +32,7 @@ The config params can also be set via environment variables.
 #### Compilation
 
 Go into the `api/` folder and run `go get -d ./...` to download the dependencies, followed by `go build` to compile the executable.  
-This project is using [Go Modules](https://github.com/golang/go/wiki/Modules), which were introduced with Go v1.11. So, make sure that the project code is outside your `$GOPATH/src`, or set the environment variable `GO111MODULE=on` when running `go get|build|...`.
+This project is using [Go Modules](https://github.com/golang/go/wiki/Modules), which were introduced with Go v1.11.
 
 #### Execution
 
@@ -59,6 +59,6 @@ Refer to the [API](#testing) and [Client](#client) section for testing and linti
 
 Commit messages follow the [Conventional Commits specification](https://www.conventionalcommits.org/) and are enforeced by [Commitlint](https://conventional-changelog.github.io/commitlint/#/) using the [conventional config](https://github.com/conventional-changelog/commitlint/tree/master/%40commitlint/config-conventional#type-enum).  
 Keywords may be added to [close a ticket](https://help.github.com/articles/closing-issues-using-keywords/) or otherwise state the progress, e. g. `progresses #1`.  
-The repository supports [Commitizen](http://commitizen.github.io/cz-cli/), so you may use `yarn run cm` as an alternativ to `git commit` if you commit on the command line. Use `\n` to separate a multi-line body message.
+The repository supports [Commitizen](http://commitizen.github.io/cz-cli/), so you may use `yarn cz` as an alternativ to `git commit` if you commit on the command line. Use `\n` to separate a multi-line body message.
 
 We are following a [feature branching model](https://guides.github.com/introduction/flow/). Changes to the `master` branch have to be made through PRs and need to pass the [CI pipeline](https://travis-ci.org/), which runs linters and tests, before it can be merged via Github. The PR is automatically squashed before the merge.

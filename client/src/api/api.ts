@@ -1,6 +1,6 @@
 import { Category, Image } from '@/models';
 
-import config from '../../config.json';
+import config from '../../config.js';
 
 /**
  * loadCategories loads the categories from the API.

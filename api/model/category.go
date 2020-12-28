@@ -1,15 +1,14 @@
 package model
 
-// Category models a category
+// Category model.
 type Category struct {
-	Name        string `json:"name" bson:"name"`
-	Key         string `json:"key" bson:"key"`
+	Name        string `json:"name" bson:"name" binding:"required"`
 	Description string `json:"description" bson:"description"`
 }
 
-// CategoryMap models one starred and a list of proposed and assigned categories
+// CategoryMap models one starred and a list of proposed and assigned categories.
 type CategoryMap struct {
-	Starred  string
+	Starred  *string
 	Proposed []string
 	Assigned []string
 }

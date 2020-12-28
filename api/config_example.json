@@ -1,7 +1,0 @@
-{
-    "database": "tagallery",
-    "databaseHost": "localhost:27017",
-    "port": 3333,
-    "unprocessedImages": "/path/to/new/images"
-    
-}
