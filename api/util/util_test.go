@@ -1,89 +1,31 @@
-package util
+package util_test
 
 import (
-	"os"
-	"path/filepath"
 	"testing"
 
-	"tagallery.com/api/testutil"
+	"tagallery.com/api/util"
 )
 
-func TestJoin(t *testing.T) {
-	expected := "Hello World"
-	str := Join("Hello", " ", "World")
-	if str != expected {
-		format, args := testutil.FormatTestError(
-			"TestJoin failed to join strings.",
-			map[string]interface{}{
-				"expected": expected,
-				"got":      str,
-			})
-		t.Errorf(format, args...)
+func TestContainsString(t *testing.T) {
+	if contains := util.ContainsString([]string{"123", "456"}, "abc", true); contains {
+		t.Error("Slice should not contain string.")
+	}
+	if contains := util.ContainsString([]string{"123", "abc"}, "abc", true); !contains {
+		t.Error("Slice should contain string.")
+	}
+	if contains := util.ContainsString([]string{"123", "abc"}, "aBc", false); !contains {
+		t.Error("ContainsString() should compare case insensitive.")
 	}
 }
 
-// createTestDirectory creates and fills a directory with some example content.
-func createTestDirectory(directory string) error {
-
-	if err := os.Mkdir(directory, os.ModePerm); err != nil {
-		return err
+func TestIntPtr(t *testing.T) {
+	if i := util.IntPtr(1); *i != 1 {
+		t.Error("IntPtr() should return pointer with the correct value.")
 	}
-
-	return testutil.FillDirectory(directory, testutil.FileTree{
-		Dirs: map[string]*testutil.FileTree{
-			"nested": &testutil.FileTree{},
-		},
-		Files: []string{"example.txt"},
-	})
 }
 
-// readDirRecursive recursively reads the names of paths in a directory and returns them.
-func readDirRecursive(dir string) ([]string, error) {
-	var content []string
-	walkErr := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
-		if err == nil {
-			if path != dir {
-				content = append(content, path)
-			}
-			return nil
-		} else {
-			return err
-		}
-	})
-	return content, walkErr
-}
-
-func TestEmptyDirectory(t *testing.T) {
-	var dir = "testdata"
-
-	if err := createTestDirectory(dir); err != nil {
-		format, args := testutil.FormatTestError(
-			"Unable to create test directory for deletion.",
-			map[string]interface{}{
-				"error": err,
-			})
-		t.Errorf(format, args...)
+func TestStringPtr(t *testing.T) {
+	if i := util.StringPtr("test"); *i != "test" {
+		t.Error("StringPtr() should return pointer with the correct value.")
 	}
-
-	if err := EmptyDirectory(dir); err != nil {
-		format, args := testutil.FormatTestError(
-			"Unable to empty directory.",
-			map[string]interface{}{
-				"error": err,
-			})
-		t.Errorf(format, args...)
-	}
-
-	if content, err := readDirRecursive(dir); err != nil || len(content) > 0 {
-		format, args := testutil.FormatTestError(
-			"Some content still resides in the directory.",
-			map[string]interface{}{
-				"error":   err,
-				"content": content,
-			})
-		t.Errorf(format, args...)
-	}
-
-	os.RemoveAll(dir)
-
 }

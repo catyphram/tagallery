@@ -1,37 +1,28 @@
-// Package util contains utility functions that can be reused throughout the app.
 package util
 
-import (
-	"os"
-	"path/filepath"
-	"strings"
-)
+import "strings"
 
-// Join concatenates multiple strings into one.
-func Join(strs ...string) string {
-	var sb strings.Builder
-	for _, str := range strs {
-		sb.WriteString(str)
-	}
-	return sb.String()
-}
-
-// EmptyDirectory cleans the directory and leaves it empty. The root directory itself is kept.
-func EmptyDirectory(dir string) error {
-	d, err := os.Open(dir)
-	if err != nil {
-		return err
-	}
-	defer d.Close()
-	names, err := d.Readdirnames(-1)
-	if err != nil {
-		return err
-	}
-	for _, name := range names {
-		err = os.RemoveAll(filepath.Join(dir, name))
-		if err != nil {
-			return err
+// ContainsString checks if a given string exists in a slice.
+func ContainsString(s []string, str string, cs bool) bool {
+	for _, v := range s {
+		if cs {
+			if v == str {
+				return true
+			}
+		} else if strings.EqualFold(v, str) {
+			return true
 		}
 	}
-	return nil
+
+	return false
+}
+
+// IntPtr creates an int and returns a pointer to it. Useful for struct inits.
+func IntPtr(i int) *int {
+	return &i
+}
+
+// StringPtr creates a string and returns a pointer to it. Useful for struct inits.
+func StringPtr(s string) *string {
+	return &s
 }

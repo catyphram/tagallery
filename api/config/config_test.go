@@ -1,55 +1,36 @@
-package config
+package config_test
 
 import (
-	"reflect"
+	"os"
 	"testing"
 
-	"tagallery.com/api/testutil"
+	"tagallery.com/api/config"
 )
 
-func TestParseFlags(t *testing.T) {
-	parseFlags()
-	if !loaded {
-		format, args := testutil.FormatTestError(
-			"Function parseFlags did not set variable loaded to true.",
-			map[string]interface{}{
-				"loaded": loaded,
-			})
-		t.Errorf(format, args...)
-	}
-}
-
 func TestLoad(t *testing.T) {
-	Load()
-}
+	configuration := config.Load()
 
-func TestGetConfig(t *testing.T) {
-	config := GetConfig()
-	if !reflect.DeepEqual(configuration, config) {
-		format, args := testutil.FormatTestError(
-			"Wrong config returned by GetConfig.",
-			map[string]interface{}{
-				"expected": configuration,
-				"got":      config,
-			})
-		t.Errorf(format, args...)
-	}
-}
-
-func TestSetConfig(t *testing.T) {
-	config := Configuration{
-		Database:           "testdb",
-		Unprocessed_Images: "testpath",
+	if configuration.Database != "tagallery" {
+		t.Error("Load() should set the default settings.")
 	}
 
-	SetConfig(config)
+	if configuration != config.Get() {
+		t.Error("Get() should return the same config as Load().")
+	}
 
-	if !reflect.DeepEqual(configuration, config) {
-		format, args := testutil.FormatTestError(
-			"SetConfig didn't correclty set the config.", map[string]interface{}{
-				"expected": config,
-				"got":      configuration,
-			})
-		t.Errorf(format, args...)
+	os.Setenv("DATABASE_HOST", "database-host")
+	os.Setenv("DATABASE", "database")
+	os.Setenv("DEBUG", "true")
+	os.Setenv("PORT", "8080")
+	os.Setenv("IMAGES", "imgs")
+
+	configuration = config.Load()
+
+	if configuration.DatabaseHost != "database-host" ||
+		configuration.Database != "database" ||
+		!configuration.Debug ||
+		configuration.Port != 8080 ||
+		configuration.Images != "imgs" {
+		t.Error("Load() should load the settings from the env variables.")
 	}
 }

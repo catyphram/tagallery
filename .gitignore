@@ -1,8 +1,8 @@
-api/config.json
+!/**/.gitkeep
+.husky/
 api/api
 api/api.exe
+api/coverage.txt
 mongodb/*
-!mongodb/.gitkeep
-client/coverage/
-client/config.json
 node_modules
+client/coverage/

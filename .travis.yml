@@ -1,36 +1,31 @@
-dist: xenial
+dist: focal
 matrix:
   include:
     - language: node_js
-      node_js: "node"
+      node_js: node
       script:
         - commitlint-travis
     - language: go
-      go: "1.11"
+      go: 1.x
       before_install:
         - cd api
       install:
         - go get -d -v ./...
-      before_script:
-        - mkdir -p ${UNPROCESSED_IMAGES}
       script:
-        - go tool vet .
+        - go vet .
         - go test -coverprofile=coverage.txt -covermode=atomic ./...
       after_success:
         - bash <(curl -s https://codecov.io/bash)
-      env: GO111MODULE=on
       services: mongodb
-    - language: node_js
-      node_js: "lts/*"
-      before_install:
-        - cd client
-      install:
-        - yarn global add codecov
-        - yarn
-      before_script:
-        - cp config_example.json config.json
-      script:
-        - yarn lint && yarn test --collectCoverage --coverageDirectory="./coverage/" && yarn build
-      after_success:
-        - codecov
-      cache: yarn
+    # - language: node_js
+    #   node_js: node
+    #   before_install:
+    #     - cd client
+    #   install:
+    #     - yarn global add codecov
+    #     - yarn
+    #   script:
+    #     - yarn lint && yarn test --coverageDirectory=coverage && yarn build
+    #   after_success:
+    #     - codecov
+    #   cache: yarn

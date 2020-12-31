@@ -1,180 +1,110 @@
 package mongodb
 
 import (
-	"github.com/mongodb/mongo-go-driver/bson"
-	"github.com/mongodb/mongo-go-driver/bson/objectid"
-	"github.com/mongodb/mongo-go-driver/mongo/findopt"
-	"github.com/mongodb/mongo-go-driver/mongo/replaceopt"
-	log "github.com/sirupsen/logrus"
+	"context"
+	"time"
+
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
+
+	"tagallery.com/api/config"
+	"tagallery.com/api/logger"
 	"tagallery.com/api/model"
 )
 
-// DBImage encapsulates a model.Image and it's id in the db
+// DBImage extends a model.Image by an Id.
 type DBImage struct {
 	model.Image
-	Id objectid.ObjectID `json:"id" bson:"_id"`
+	ID primitive.ObjectID `json:"id" bson:"_id"`
 }
 
 // GetImages queries the database for images.
-// If count > 0 no more then {count} images will be returned.
+// If count is set then no more then {ops.count} images will be returned.
 // A *CategoryMap may be passed to filter only images that are in all of these categories.
 // If categories == nil then instead of (auto)-categorized images,
 // only images that have no assigned category will be returned.
 // With lastImage you get only images after this one. Used for pagination.
-func GetImages(count int, categories *model.CategoryMap, lastImage string) ([]model.Image, error) {
+func GetImages(opts model.ImageOptions, categories *model.CategoryMap) ([]model.Image, error) {
 	var dbLastImage DBImage
-	doc := bson.NewDocument()
-	db, ctx, err := GetConnection()
+	doc := bson.D{}
 
-	if err != nil {
-		return nil, err
-	}
+	collection := Client().Database(config.Get().Database).Collection("image")
 
-	if lastImage != "" {
-		lastImageDoc := bson.NewDocument(bson.EC.String("file", lastImage))
-		err = db.Collection("images").FindOne(ctx, lastImageDoc).Decode(&dbLastImage)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	if opts.LastImage != nil {
+		err := collection.FindOne(ctx, bson.M{"file": opts.LastImage}).Decode(&dbLastImage)
 
 		if err != nil {
-			log.WithFields(log.Fields{
-				"error":             err,
-				"lastImageArgument": lastImage,
-				"lastImageDatabase": dbLastImage,
-			}).Info("Unable to find lastImage in the database.")
+			logger.Logger().Warnw("Unable to find lastImage in the database.",
+				"lastImage", *opts.LastImage,
+				"error", err,
+			)
 		} else {
-			doc.Append(bson.EC.SubDocumentFromElements(
-				"_id", bson.EC.ObjectID("$gt", dbLastImage.Id),
-			))
+			doc = append(doc, bson.E{
+				Key: "_id", Value: bson.M{
+					"$gt": dbLastImage.ID,
+				},
+			})
 		}
 	}
 
 	// Uncategorized images only
 	if categories == nil {
-
-		doc.Append(
-			bson.EC.ArrayFromElements(
-				"$and", bson.VC.DocumentFromElements(
-					bson.EC.ArrayFromElements(
-						"$or",
-						bson.VC.DocumentFromElements(
-							bson.EC.SubDocumentFromElements(
-								"assignedCategories", bson.EC.Boolean("$exists", false),
-							),
-						),
-						bson.VC.DocumentFromElements(
-							bson.EC.SubDocumentFromElements(
-								"assignedCategories", bson.EC.Int32("$size", 0),
-							),
-						),
-						bson.VC.DocumentFromElements(
-							bson.EC.Null("assignedCategories"),
-						),
-					),
-				), bson.VC.DocumentFromElements(
-					bson.EC.ArrayFromElements(
-						"$or",
-						bson.VC.DocumentFromElements(
-							bson.EC.SubDocumentFromElements(
-								"proposedCategories", bson.EC.Boolean("$exists", false),
-							),
-						),
-						bson.VC.DocumentFromElements(
-							bson.EC.SubDocumentFromElements(
-								"proposedCategories", bson.EC.Int32("$size", 0),
-							),
-						),
-						bson.VC.DocumentFromElements(
-							bson.EC.Null("proposedCategories"),
-						),
-					),
-				), bson.VC.DocumentFromElements(
-					bson.EC.ArrayFromElements(
-						"$or",
-						bson.VC.DocumentFromElements(
-							bson.EC.SubDocumentFromElements(
-								"starredCategory", bson.EC.Boolean("$exists", false),
-							),
-						),
-						bson.VC.DocumentFromElements(
-							bson.EC.Null("starredCategory"),
-						),
-						bson.VC.DocumentFromElements(
-							bson.EC.String("starredCategory", ""),
-						),
-					),
-				),
-			),
-		)
+		doc = append(doc, bson.E{Key: "$or", Value: bson.A{
+			bson.M{"assignedCategories": bson.M{"$size": 0}},
+			bson.M{"assignedCategories": bson.M{"$eq": nil}},
+		}}, bson.E{Key: "$or", Value: bson.A{
+			bson.M{"proposedCategories": bson.M{"$size": 0}},
+			bson.M{"proposedCategories": bson.M{"$eq": nil}},
+		}}, bson.E{Key: "$or", Value: bson.A{
+			bson.M{"starredCategory": bson.M{"$in": bson.A{nil, ""}}},
+		}})
 	} else {
-		if len(categories.Assigned) > 0 {
-
-			var assignedCategories []*bson.Value
-			for _, assignedCategory := range categories.Assigned {
-				assignedCategories = append(assignedCategories, bson.VC.String(assignedCategory))
+		if categories.Assigned != nil {
+			if len(categories.Assigned) > 0 {
+				doc = append(doc, bson.E{Key: "assignedCategories", Value: bson.M{
+					"$all": categories.Assigned},
+				})
+			} else {
+				doc = append(doc, bson.E{Key: "$and", Value: bson.A{
+					bson.M{"assignedCategories": bson.M{"$ne": nil}},
+					bson.M{"assignedCategories": bson.M{"$ne": []string{}}},
+				}})
 			}
-
-			doc.Append(bson.EC.SubDocumentFromElements(
-				"assignedCategories", bson.EC.ArrayFromElements(
-					"$all", assignedCategories...,
-				),
-			))
 		}
 
-		if len(categories.Proposed) > 0 {
-
-			var proposedCategories []*bson.Value
-			for _, proposedCategory := range categories.Proposed {
-				proposedCategories = append(proposedCategories, bson.VC.String(proposedCategory))
+		if categories.Proposed != nil {
+			if len(categories.Proposed) > 0 {
+				doc = append(doc, bson.E{Key: "proposedCategories", Value: bson.M{
+					"$all": categories.Proposed},
+				})
+			} else {
+				doc = append(doc, bson.E{Key: "$and", Value: bson.A{
+					bson.M{"proposedCategories": bson.M{"$ne": nil}},
+					bson.M{"proposedCategories": bson.M{"$ne": []string{}}},
+				}})
 			}
-
-			doc.Append(bson.EC.SubDocumentFromElements(
-				"proposedCategories", bson.EC.ArrayFromElements(
-					"$all", proposedCategories...,
-				),
-			))
 		}
 
-		if categories.Starred != "" {
-			doc.Append(bson.EC.String(
-				"starredCategory", categories.Starred,
-			))
+		if categories.Starred != nil {
+			doc = append(doc, bson.E{Key: "starredCategory", Value: categories.Starred})
 		}
 	}
 
-	var opts []findopt.Find
+	logger.Logger().Info(doc)
 
-	if count > 0 {
-		opts = append(opts, findopt.Limit(int64(count)))
-	}
-
-	c, err := db.Collection("images").Find(ctx, doc, opts...)
+	cur, err := collection.Find(ctx, doc, options.Find().SetLimit(int64(*opts.Count)))
 
 	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-		}).Error("Failed to get cursor for images in database.")
 		return nil, err
 	}
 
-	defer c.Close(ctx)
+	images := []model.Image{}
 
-	var images []model.Image
-
-	for c.Next(ctx) {
-
-		image := model.Image{}
-		err := c.Decode(&image)
-		if err != nil {
-			log.WithFields(log.Fields{
-				"error": err,
-			}).Error("Failed to parse image object from bson during select of images.")
-			return nil, err
-		}
-		images = append(images, image)
-	}
-	if err = c.Err(); err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-		}).Error("Cursor failed during listing of images in database.")
+	if err := cur.All(ctx, &images); err != nil {
 		return nil, err
 	}
 
@@ -183,35 +113,13 @@ func GetImages(count int, categories *model.CategoryMap, lastImage string) ([]mo
 
 // UpsertImage inserts or updates an existing image in the db.
 func UpsertImage(image model.Image) error {
-	var dbImage model.Image
-	db, ctx, err := GetConnection()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
-	if err != nil {
-		return err
-	}
+	collection := Client().Database(config.Get().Database).Collection("image")
 
-	doc := bson.NewDocument(bson.EC.String("file", image.File))
-	err = db.Collection("images").FindOne(ctx, doc).Decode(&dbImage)
+	opts := options.Replace().SetUpsert(true)
+	_, err := collection.ReplaceOne(ctx, bson.M{"file": image.File}, image, opts)
 
-	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-		}).Info("Unable to find image in db. Proceeding to create image.")
-	}
-
-	_, err = db.Collection("images").ReplaceOne(
-		ctx,
-		doc,
-		image,
-		replaceopt.Upsert(true),
-	)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"image": image,
-			"error": err,
-		}).Error("Failed to update image object in database.")
-		return err
-	}
-
-	return nil
+	return err
 }
