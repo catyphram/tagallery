@@ -63,22 +63,38 @@ func GetImages(opts model.ImageOptions, categories *model.CategoryMap) ([]model.
 			bson.M{"starredCategory": bson.M{"$in": bson.A{nil, ""}}},
 		}})
 	} else {
-		if len(categories.Assigned) > 0 {
-			doc = append(doc, bson.E{Key: "assignedCategories", Value: bson.D{{
-				Key: "$all", Value: categories.Assigned}},
-			})
+		if categories.Assigned != nil {
+			if len(categories.Assigned) > 0 {
+				doc = append(doc, bson.E{Key: "assignedCategories", Value: bson.M{
+					"$all": categories.Assigned},
+				})
+			} else {
+				doc = append(doc, bson.E{Key: "$and", Value: bson.A{
+					bson.M{"assignedCategories": bson.M{"$ne": nil}},
+					bson.M{"assignedCategories": bson.M{"$ne": []string{}}},
+				}})
+			}
 		}
 
-		if len(categories.Proposed) > 0 {
-			doc = append(doc, bson.E{Key: "proposedCategories", Value: bson.D{{
-				Key: "$all", Value: categories.Proposed}},
-			})
+		if categories.Proposed != nil {
+			if len(categories.Proposed) > 0 {
+				doc = append(doc, bson.E{Key: "proposedCategories", Value: bson.M{
+					"$all": categories.Proposed},
+				})
+			} else {
+				doc = append(doc, bson.E{Key: "$and", Value: bson.A{
+					bson.M{"proposedCategories": bson.M{"$ne": nil}},
+					bson.M{"proposedCategories": bson.M{"$ne": []string{}}},
+				}})
+			}
 		}
 
 		if categories.Starred != nil {
 			doc = append(doc, bson.E{Key: "starredCategory", Value: categories.Starred})
 		}
 	}
+
+	logger.Logger().Info(doc)
 
 	cur, err := collection.Find(ctx, doc, options.Find().SetLimit(int64(*opts.Count)))
 

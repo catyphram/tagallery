@@ -84,10 +84,12 @@ func GetImages(
 		return mongodb.GetImages(opts, &model.CategoryMap{
 			Proposed: categories,
 		})
-	default:
+	case "categorized":
 		return mongodb.GetImages(opts, &model.CategoryMap{
 			Assigned: categories,
 		})
+	default:
+		return mongodb.GetImages(opts, &model.CategoryMap{})
 	}
 }
 

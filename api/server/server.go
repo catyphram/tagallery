@@ -29,7 +29,7 @@ func StartServer() {
 			}
 		}()
 
-		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 		if err := client.Ping(ctx, readpref.Primary()); err != nil {
 			log.Fatalw("Ping to database not successful.", "error", err)

@@ -24,10 +24,8 @@ matrix:
     #   install:
     #     - yarn global add codecov
     #     - yarn
-    #   before_script:
-    #     - cp config_example.json config.json
     #   script:
-    #     - yarn lint && yarn test --collectCoverage --coverageDirectory="./coverage/" && yarn build
+    #     - yarn lint && yarn test --coverageDirectory=coverage && yarn build
     #   after_success:
     #     - codecov
     #   cache: yarn

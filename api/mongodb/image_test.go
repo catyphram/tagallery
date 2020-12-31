@@ -148,6 +148,25 @@ func TestGetImages(t *testing.T) {
 	}
 
 	expectedImages = []model.Image{
+		imageFixtures[1],
+		imageFixtures[4],
+	}
+	dbImages, _ = mongodb.GetImages(
+		model.ImageOptions{Count: util.IntPtr(10)},
+		&model.CategoryMap{
+			Assigned: []string{},
+		},
+	)
+	if !reflect.DeepEqual(dbImages, expectedImages) {
+		format, args := testutil.FormatTestError(
+			"Expected images from database to equal the fixture.", map[string]interface{}{
+				"dbImages":       dbImages,
+				"expectedImages": expectedImages,
+			})
+		t.Errorf(format, args...)
+	}
+
+	expectedImages = []model.Image{
 		imageFixtures[4],
 		imageFixtures[5],
 	}
@@ -155,6 +174,26 @@ func TestGetImages(t *testing.T) {
 		model.ImageOptions{Count: util.IntPtr(10)},
 		&model.CategoryMap{
 			Proposed: []string{"Category 1"},
+		},
+	)
+	if !reflect.DeepEqual(dbImages, expectedImages) {
+		format, args := testutil.FormatTestError(
+			"Expected images from database to equal the fixture.", map[string]interface{}{
+				"dbImages":       dbImages,
+				"expectedImages": expectedImages,
+			})
+		t.Errorf(format, args...)
+	}
+
+	expectedImages = []model.Image{
+		imageFixtures[2],
+		imageFixtures[4],
+		imageFixtures[5],
+	}
+	dbImages, _ = mongodb.GetImages(
+		model.ImageOptions{Count: util.IntPtr(10)},
+		&model.CategoryMap{
+			Proposed: []string{},
 		},
 	)
 	if !reflect.DeepEqual(dbImages, expectedImages) {

@@ -173,6 +173,32 @@ func GetImages(t *testing.T) {
 		t.Errorf(format, args...)
 	}
 
+	expected = []model.Image{
+		processedImageFixtures[1],
+		processedImageFixtures[5],
+		processedImageFixtures[9],
+		processedImageFixtures[12],
+		processedImageFixtures[13],
+		processedImageFixtures[17],
+	}
+	if err := GetRequest(apiURL("/image?status=categorized"), &images); err != nil {
+		format, args := testutil.FormatTestError(
+			"Request failed.",
+			map[string]interface{}{
+				"error": err,
+			})
+		t.Errorf(format, args...)
+	}
+	if !reflect.DeepEqual(expected, images) {
+		format, args := testutil.FormatTestError(
+			"Returned images do not match expectations.",
+			map[string]interface{}{
+				"expected": expected,
+				"got":      images,
+			})
+		t.Errorf(format, args...)
+	}
+
 	expected = []model.Image{}
 	for i := 0; i < 10; i++ {
 		expected = append(expected, processedImageFixtures[i])
@@ -199,7 +225,7 @@ func GetImages(t *testing.T) {
 		processedImageFixtures[1],
 	}
 	if err := GetRequest(
-		apiURL("/image?categories=Category+1&categories=Category+2"), &images,
+		apiURL("/image?status=categorized&categories=Category+1&categories=Category+2"), &images,
 	); err != nil {
 		format, args := testutil.FormatTestError(
 			"Request failed.",
@@ -222,7 +248,7 @@ func GetImages(t *testing.T) {
 		processedImageFixtures[12],
 	}
 	if err := GetRequest(apiURL(fmt.Sprintf(
-		"/image?categories=Category+1&lastImage=%v",
+		"/image?status=categorized&categories=Category+1&lastImage=%v",
 		processedImageFixtures[1].File)), &images,
 	); err != nil {
 		format, args := testutil.FormatTestError(
@@ -246,7 +272,7 @@ func GetImages(t *testing.T) {
 		processedImageFixtures[12],
 	}
 	if err := GetRequest(apiURL(fmt.Sprintf(
-		"/image?categories=Category+1&lastImage=%v",
+		"/image?status=categorized&categories=Category+1&lastImage=%v",
 		processedImageFixtures[1].File)), &images,
 	); err != nil {
 		format, args := testutil.FormatTestError(

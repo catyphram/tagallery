@@ -4,6 +4,5 @@ api/api
 api/api.exe
 api/coverage.txt
 mongodb/*
-client/coverage/
-client/config.json
 node_modules
+client/coverage/
