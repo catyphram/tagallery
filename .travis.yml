@@ -17,15 +17,15 @@ matrix:
       after_success:
         - bash <(curl -s https://codecov.io/bash)
       services: mongodb
-    # - language: node_js
-    #   node_js: node
-    #   before_install:
-    #     - cd client
-    #   install:
-    #     - yarn global add codecov
-    #     - yarn
-    #   script:
-    #     - yarn lint && yarn test --coverageDirectory=coverage && yarn build
-    #   after_success:
-    #     - codecov
-    #   cache: yarn
+    - language: node_js
+      node_js: node
+      before_install:
+        - cd client
+      install:
+        - yarn global add codecov
+        - yarn
+      script:
+        - yarn lint && yarn test --coverageDirectory=coverage && yarn build
+      after_success:
+        - codecov
+      cache: yarn

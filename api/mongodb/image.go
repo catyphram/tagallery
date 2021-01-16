@@ -94,8 +94,6 @@ func GetImages(opts model.ImageOptions, categories *model.CategoryMap) ([]model.
 		}
 	}
 
-	logger.Logger().Info(doc)
-
 	cur, err := collection.Find(ctx, doc, options.Find().SetLimit(int64(*opts.Count)))
 
 	if err != nil {

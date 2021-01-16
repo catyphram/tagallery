@@ -1,16 +1,16 @@
 version: '3'
 services:
-  # client:
-  #   build: ./client/
-  #   container_name: tg-client
-  #   ports:
-  #     - "80:80"
-  #   depends_on:
-  #     - api
-  #   environment:
-  #     - PORT=80
-  #     - HOST=0
-  #     - API_URL=tg-api
+  client:
+    build: ./client/
+    container_name: tg-client
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+    environment:
+      - PORT=80
+      - HOST=0
+      - API_URL=tg-api
   api:
     build: ./api/
     container_name: tg-api
