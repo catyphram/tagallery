@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"tagallery.com/api/config"
 	"tagallery.com/api/model"
@@ -46,4 +47,22 @@ func UpsertCategory(category model.Category) error {
 	_, err := collection.ReplaceOne(ctx, bson.M{"name": category.Name}, category, opts)
 
 	return err
+}
+
+// DeleteCategory deletes a category.
+func DeleteCategory(id string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	collection := Client().Database(config.Get().Database).Collection("category")
+
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+
+	_, err = collection.DeleteOne(ctx, bson.M{"_id": objectID}, options.Delete())
+
+	return err
+
 }

@@ -41,6 +41,18 @@ func ConfigureRouter() *gin.Engine {
 		}
 	})
 
+	r.DELETE("/category/:id", func(c *gin.Context) {
+		id := c.Param("id")
+
+		if err := mongodb.DeleteCategory(id); err != nil {
+			logger.Logger().Warnw("Unable to delete cagegory.", "error", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		} else {
+			logger.Logger().Infow("Category deleted successfully.", "id", id)
+			c.JSON(http.StatusOK, gin.H{})
+		}
+	})
+
 	r.GET("/image", func(c *gin.Context) {
 		var opts model.ImageOptions
 		status := c.Query("status")

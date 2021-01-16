@@ -23,4 +23,5 @@ func TestAPI(t *testing.T) {
 	t.Run("GetImages", GetImages)
 	t.Run("PostCategory", PostCategory)
 	t.Run("PostImage", PostImage)
+	t.Run("DeleteCategory", DeleteCategory)
 }
