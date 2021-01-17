@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 	"tagallery.com/api/controller"
 	"tagallery.com/api/logger"
 	"tagallery.com/api/model"
@@ -31,13 +32,35 @@ func ConfigureRouter() *gin.Engine {
 		if err := c.ShouldBindJSON(&category); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		} else {
-			if err := mongodb.UpsertCategory(category); err != nil {
+			if upsertedCategory, err := mongodb.UpsertCategory(category); err != nil {
 				logger.Logger().Warnw("Unable to upsert cagegory.", "error", err)
-				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+
+				status := http.StatusInternalServerError
+				if errors.Is(err, mongodb.ErrInvalidObjectID) {
+					status = http.StatusBadRequest
+				}
+				c.JSON(status, gin.H{"error": err.Error()})
 			} else {
-				logger.Logger().Infow("Category upserted successfully.", "category", category)
-				c.JSON(http.StatusOK, category)
+				logger.Logger().Infow("Category upserted successfully.", "category", upsertedCategory)
+				c.JSON(http.StatusOK, upsertedCategory)
 			}
+		}
+	})
+
+	r.DELETE("/category/:id", func(c *gin.Context) {
+		id := c.Param("id")
+
+		if err := mongodb.DeleteCategory(id); err != nil {
+			logger.Logger().Warnw("Unable to delete cagegory.", "error", err)
+
+			status := http.StatusInternalServerError
+			if errors.Is(err, mongodb.ErrInvalidObjectID) {
+				status = http.StatusBadRequest
+			}
+			c.JSON(status, gin.H{"error": err.Error()})
+		} else {
+			logger.Logger().Infow("Category deleted successfully.", "id", id)
+			c.JSON(http.StatusOK, gin.H{})
 		}
 	})
 

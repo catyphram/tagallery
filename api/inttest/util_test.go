@@ -10,6 +10,10 @@ import (
 	"tagallery.com/api/config"
 )
 
+type ErrorResponse struct {
+	Error string `json:"error"`
+}
+
 // apiURL takes a route and returns the full API url.
 func apiURL(route string) string {
 	return fmt.Sprintf("http://localhost:%v%v", config.Get().Port, route)
@@ -23,6 +27,11 @@ func GetRequest(url string, response interface{}) error {
 // PostRequest sends a HTTP POST request and parses the returned data into the type of {response}.
 func PostRequest(url string, body interface{}, response interface{}) error {
 	return Request("POST", url, body, response)
+}
+
+// PostRequest sends a HTTP DELETE request and parses the returned data into the type of {response}.
+func DeleteRequest(url string, response interface{}) error {
+	return Request("DELETE", url, nil, response)
 }
 
 // Request sends a HTTP request to {url} and parses the returned data into the type of {response}.
