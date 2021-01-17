@@ -77,4 +77,18 @@ func DeleteCategory(t *testing.T) {
 			})
 		t.Errorf(format, args...)
 	}
+
+	var errorResponse ErrorResponse
+	if err := DeleteRequest(apiURL("/category/abc123"), &errorResponse); err != nil ||
+		errorResponse.Error != mongodb.ErrInvalidObjectID.Error() {
+		format, args := testutil.FormatTestError(
+			"Request failed or invalid object id error message was not returned correctly.",
+			map[string]interface{}{
+				"error":    err,
+				"expected": mongodb.ErrInvalidObjectID.Error(),
+				"got":      errorResponse.Error,
+				"insertID": insertID,
+			})
+		t.Errorf(format, args...)
+	}
 }

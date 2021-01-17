@@ -35,18 +35,41 @@ func QueryCategories() ([]model.Category, error) {
 	return categories, nil
 }
 
-// UpsertCategory inserts a category or updates it if a category with the same name already exists.
-// The name is compared case insensitive.
-func UpsertCategory(category model.Category) error {
+// UpsertCategory inserts a category or updates it.
+// If the provided category has a valid id, then the entire document is updated.
+// If the id is missing, then the name is taken as an identifier and everything else is updated.
+// You can also provide a valid ObjectId {category.id} for a new category.
+// The name is compared case insensitive and must be unique.
+func UpsertCategory(category model.Category) (*model.Category, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	collection := Client().Database(config.Get().Database).Collection("category")
+	opts := options.Replace().SetUpsert(true)
+	filter := bson.M{}
 
-	opts := options.Replace().SetCollation(&options.Collation{Strength: 2, Locale: "en"}).SetUpsert(true)
-	_, err := collection.ReplaceOne(ctx, bson.M{"name": category.Name}, category, opts)
+	if category.ID != nil && len(*category.ID) > 0 {
+		objectID, err := primitive.ObjectIDFromHex(*category.ID)
+		if err != nil {
+			return nil, ErrInvalidObjectID
+		}
+		filter["_id"] = objectID
+	} else {
+		filter["name"] = category.Name
+	}
+	category.ID = nil
 
-	return err
+	result, err := collection.ReplaceOne(ctx, filter, category, opts)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if result.UpsertedID != nil {
+		objectID := result.UpsertedID.(primitive.ObjectID).Hex()
+		category.ID = &objectID
+	}
+	return &category, nil
 }
 
 // DeleteCategory deletes a category.
@@ -58,7 +81,7 @@ func DeleteCategory(id string) error {
 
 	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return err
+		return ErrInvalidObjectID
 	}
 
 	_, err = collection.DeleteOne(ctx, bson.M{"_id": objectID}, options.Delete())

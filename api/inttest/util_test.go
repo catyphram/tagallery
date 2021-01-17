@@ -10,6 +10,10 @@ import (
 	"tagallery.com/api/config"
 )
 
+type ErrorResponse struct {
+	Error string `json:"error"`
+}
+
 // apiURL takes a route and returns the full API url.
 func apiURL(route string) string {
 	return fmt.Sprintf("http://localhost:%v%v", config.Get().Port, route)

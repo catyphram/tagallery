@@ -2,10 +2,14 @@ package mongodb
 
 import (
 	"context"
+	"errors"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
+
+// ErrInvalidObjectID indicates that a provided string is not a valid object id.
+var ErrInvalidObjectID = errors.New("the provided string is not a valid ObjectID")
 
 var client *mongo.Client
 
